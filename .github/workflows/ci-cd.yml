@@ -9,32 +9,48 @@ on:
       - main
 
 jobs:
-  # JOB 1 — CI : lint, test, build
+
+  # ──────────────────────────────────────────
+  # JOB 1 — CI : test + build Docker
+  # ──────────────────────────────────────────
   ci:
-    name: Lint → Test → Build
+    name: 🧪 Test → 📦 Build
+    runs-on: ubuntu-latest
     permissions:
       contents: read
-    runs-on: ubuntu-latest
-        
+
     steps:
       - name: ⬇️ Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Build Docker image
-        run: |
-          docker build -t springboot-app .
+      - name: ☕ Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
 
-  # JOB 2 — CD : deploy sur railway
+      - name: 🧪 Run tests
+        run: mvn test
+
+      - name: 📦 Build Docker image
+        run: docker build -t springboot-app .
+
+  # ──────────────────────────────────────────
+  # JOB 2 — CD : deploy sur Railway
+  # ──────────────────────────────────────────
   deploy:
-    name: 🚀 Deploy to railway
-    needs: ci
+    name: 🚀 Deploy to Railway
     runs-on: ubuntu-latest
+    needs: ci
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
-   
     steps:
-     - name: 🚀 Deploy to Railway
-       run: |
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🚀 Deploy via Railway CLI
+        run: |
           # Railway détecte le Dockerfile et déploie automatiquement
           echo "Push sur main déclenche Railway deployment"
     
