@@ -10,6 +10,6 @@ public class HelloController {
 
     @GetMapping("/api/hello")
     public String sayHello() {
-        return "Hello, Spring Boot API! bbbbb";
+        return "Hello, Spring Boot API!bbbbb";
     }
 }
