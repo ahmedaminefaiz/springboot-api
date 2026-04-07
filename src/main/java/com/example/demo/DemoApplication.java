@@ -1,6 +1,6 @@
 package com.example.demo;
 
-import com.example.demo.entity.User;
+import com.example.demo.entity.user;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -20,7 +20,7 @@ public class DemoApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
         // Ajouter un utilisateur
-        User u = new User();
+        user u = new user();
         u.setName("Ahmed");
         userRepository.save(u);
 
