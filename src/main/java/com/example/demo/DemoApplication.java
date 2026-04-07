@@ -1,11 +1,13 @@
 package com.example.demo;
 
-import com.example.demo.entity.user;
+import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import java.time.LocalDate;
 
 @SpringBootApplication
 public class DemoApplication implements CommandLineRunner {
@@ -19,12 +21,15 @@ public class DemoApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Ajouter un utilisateur
-        user u = new user();
-        u.setName("Ahmed");
+        User u = new User();
+        u.setNom("Ahmed");
+        u.setPrenom("Amine");
+        u.setDateNaissance(LocalDate.of(2000, 1, 1));
+        u.setVille("Berkane");
+
         userRepository.save(u);
 
-        // Lire tous les utilisateurs
-        userRepository.findAll().forEach(user -> System.out.println(user.getName()));
+        userRepository.findAll()
+                .forEach(user -> System.out.println(user.getNom()));
     }
 }
