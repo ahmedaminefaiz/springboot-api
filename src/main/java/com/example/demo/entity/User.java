@@ -2,20 +2,31 @@ package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "nom", length = 50, nullable = false)
     private String nom;
-    private String prenom;
-    @Column(name = "date_naissance")
-    private LocalDate dateNaissance;    private String ville;
 
+    @Column(name = "prenom", length = 50, nullable = false)
+    private String prenom;
+
+    @Column(name = "date_naissance", nullable = false)
+    private LocalDate dateNaissance;
+
+    @Column(name = "ville", length = 100, nullable = false)
+    private String ville;
+
+    @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime createdAt;
+
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -36,11 +47,11 @@ public class User {
         this.prenom = prenom;
     }
 
-    public java.time.LocalDate getDateNaissance() {
+    public LocalDate getDateNaissance() {
         return dateNaissance;
     }
 
-    public void setDateNaissance(java.time.LocalDate dateNaissance) {
+    public void setDateNaissance(LocalDate dateNaissance) {
         this.dateNaissance = dateNaissance;
     }
 
@@ -50,5 +61,13 @@ public class User {
 
     public void setVille(String ville) {
         this.ville = ville;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }
