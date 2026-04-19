@@ -50,6 +50,11 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/spring-app:dev .
           docker push ${{ secrets.DOCKER_USERNAME }}/spring-app:dev
           
+       # 🚀 Deploy DEV
+      - name: Trigger DEV Deployment
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          curl -X POST "${{ secrets.DEPLOY_WEBHOOK_DEV }}" 
 
       # 🔴 PROD
       - name: Build & Push PROD
@@ -57,7 +62,7 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/spring-app:prod .
           docker push ${{ secrets.DOCKER_USERNAME }}/spring-app:prod
-
+     
 
        # 🚀 Deploy PROD
       - name: Trigger PROD Deployment
