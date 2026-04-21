@@ -11,6 +11,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "email", length = 100, nullable = false, unique = true)
+    private String email;
+
     @Column(name = "nom", length = 50, nullable = false)
     private String nom;
 
@@ -23,12 +26,34 @@ public class User {
     @Column(name = "ville", length = 100, nullable = false)
     private String ville;
 
+    @Column(name = "password", length = 72, nullable = false)
+    private String password;
+
     @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
+
+    public User(String email, String nom, String prenom, LocalDate dateNaissance, String ville, String password) {
+        this.email = email;
+        this.nom = nom;
+        this.prenom = prenom;
+        this.dateNaissance = dateNaissance;
+        this.ville = ville;
+        this.password = password;
+    }
+
+    public User() {}
 
     // Getters and Setters
     public Long getId() {
         return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getNom() {
@@ -61,6 +86,14 @@ public class User {
 
     public void setVille(String ville) {
         this.ville = ville;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public LocalDateTime getCreatedAt() {
