@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = "https://ahmedaminefaiz.github.io/angular-frontend/")
 public class HelloController {
 
-    @GetMapping("/api/hello")
+    @GetMapping("/hello")
     public String sayHello() {
         return "Hello, From Spring boot! hello OussamaOA ";
     }
