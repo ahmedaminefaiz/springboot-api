@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UpdateProblemTypeRequest {
 
-    @Size(min = 2, max = 100)
+    @Size(min = 2, max = 100, message = "Le nom doit contenir entre 2 et 100 caractères")
     private String name;
 
-    @Size(max = 255)
+    @Size(max = 255, message = "L'icône ne doit pas dépasser 255 caractères")
     private String icon;
 }
