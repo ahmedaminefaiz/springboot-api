@@ -52,8 +52,7 @@ public class ProblemTypeServiceImpl implements ProblemTypeService {
         ProblemType problemType = problemTypeMapper.toEntity(dto);
         problemType.setAdmin(getCurrentUser());
         
-        problemType = problemTypeRepository.save(problemType);
-        return problemTypeMapper.toResponse(problemType);
+        return problemTypeMapper.toResponse(problemTypeRepository.save(problemType));
     }
 
     @Override
@@ -70,8 +69,7 @@ public class ProblemTypeServiceImpl implements ProblemTypeService {
 
         problemTypeMapper.updateFromDto(dto, problemType);
         
-        problemType = problemTypeRepository.save(problemType);
-        return problemTypeMapper.toResponse(problemType);
+        return problemTypeMapper.toResponse(problemTypeRepository.save(problemType));
     }
 
     @Override
