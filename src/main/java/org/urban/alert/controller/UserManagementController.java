@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.urban.alert.annotation.Audit;
-import org.urban.alert.dto.UserSummaryResponse;
+import org.urban.alert.dto.UserSummaryResponseDTO;
 import org.urban.alert.exception.ApprovalException;
 import org.urban.alert.exception.UserNotFoundException;
 import org.urban.alert.service.UserManagementService;
@@ -31,10 +31,9 @@ public class UserManagementController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @Audit
-    @GetMapping(value = "/agents/pending", produces =
-            MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/agents/pending", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('SUPER_AGENT')")
-    public ResponseEntity<List<UserSummaryResponse>> getPendingAgents() {
+    public ResponseEntity<List<UserSummaryResponseDTO>> getPendingAgents() {
         return ResponseEntity.ok(userManagementService.getPendingAgents());
     }
 
@@ -45,16 +44,14 @@ public class UserManagementController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @Audit
-    @PostMapping(value = "/agents/{id}/approve", produces =
-            MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/agents/{id}/approve", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('SUPER_AGENT')")
     public ResponseEntity<?> approveAgent(@PathVariable Long id) {
         try {
             userManagementService.approveAgent(id);
             return ResponseEntity.ok("Agent approved successfully");
         } catch (UserNotFoundException e) {
-            return
-                    ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (ApprovalException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -67,16 +64,14 @@ public class UserManagementController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @Audit
-    @PostMapping(value = "/agents/{id}/reject", produces =
-            MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/agents/{id}/reject", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('SUPER_AGENT')")
     public ResponseEntity<?> rejectAgent(@PathVariable Long id) {
         try {
             userManagementService.rejectAgent(id);
             return ResponseEntity.ok("Agent rejected");
         } catch (UserNotFoundException e) {
-            return
-                    ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (ApprovalException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -88,10 +83,9 @@ public class UserManagementController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @Audit
-    @GetMapping(value = "/super-agents/pending", produces =
-            MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/super-agents/pending", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UserSummaryResponse>> getPendingSuperAgents() {
+    public ResponseEntity<List<UserSummaryResponseDTO>> getPendingSuperAgents() {
         return ResponseEntity.ok(userManagementService.getPendingSuperAgents());
     }
 
@@ -102,16 +96,14 @@ public class UserManagementController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @Audit
-    @PostMapping(value = "/super-agents/{id}/approve", produces =
-            MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/super-agents/{id}/approve", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> approveSuperAgent(@PathVariable Long id) {
         try {
             userManagementService.approveSuperAgent(id);
             return ResponseEntity.ok("Super-agent approved successfully");
         } catch (UserNotFoundException e) {
-            return
-                    ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (ApprovalException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -124,16 +116,14 @@ public class UserManagementController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @Audit
-    @PostMapping(value = "/super-agents/{id}/reject", produces =
-            MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/super-agents/{id}/reject", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> rejectSuperAgent(@PathVariable Long id) {
         try {
             userManagementService.rejectSuperAgent(id);
             return ResponseEntity.ok("Super-agent rejected");
         } catch (UserNotFoundException e) {
-            return
-                    ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (ApprovalException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

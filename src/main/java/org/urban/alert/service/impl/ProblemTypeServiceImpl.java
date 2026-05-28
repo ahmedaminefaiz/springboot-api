@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.urban.alert.dto.problemtype.CreateProblemTypeRequest;
-import org.urban.alert.dto.problemtype.ProblemTypeResponse;
-import org.urban.alert.dto.problemtype.UpdateProblemTypeRequest;
+import org.urban.alert.dto.problemtype.CreateProblemTypeRequestDTO;
+import org.urban.alert.dto.problemtype.ProblemTypeResponseDTO;
+import org.urban.alert.dto.problemtype.UpdateProblemTypeRequestDTO;
 import org.urban.alert.entity.ProblemType;
 import org.urban.alert.entity.User;
 import org.urban.alert.repository.ProblemTypeRepository;
@@ -16,12 +16,6 @@ import org.urban.alert.service.mapper.ProblemTypeMapper;
 
 import java.util.List;
 
-/**
- * Implementation of {@link ProblemTypeService}.
- *
- * <p>Handles the business logic for managing problem types. Uses MapStruct for DTO conversions
- * and Spring Data JPA for database interactions. Write operations are transactional.
- */
 @Service
 @RequiredArgsConstructor
 public class ProblemTypeServiceImpl implements ProblemTypeService {
@@ -31,12 +25,12 @@ public class ProblemTypeServiceImpl implements ProblemTypeService {
     private final UserRepository userRepository;
 
     @Override
-    public List<ProblemTypeResponse> getAll() {
+    public List<ProblemTypeResponseDTO> getAll() {
         return problemTypeMapper.toResponseList(problemTypeRepository.findAll());
     }
 
     @Override
-    public ProblemTypeResponse getById(Long id) {
+    public ProblemTypeResponseDTO getById(Long id) {
         ProblemType problemType = problemTypeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ProblemType not found with id: " + id));
         return problemTypeMapper.toResponse(problemType);
@@ -44,7 +38,7 @@ public class ProblemTypeServiceImpl implements ProblemTypeService {
 
     @Override
     @Transactional
-    public ProblemTypeResponse create(CreateProblemTypeRequest dto) {
+    public ProblemTypeResponseDTO create(CreateProblemTypeRequestDTO dto) {
         if (problemTypeRepository.existsByName(dto.getName())) {
             throw new RuntimeException("ProblemType already exists with name: " + dto.getName());
         }
@@ -57,7 +51,7 @@ public class ProblemTypeServiceImpl implements ProblemTypeService {
 
     @Override
     @Transactional
-    public ProblemTypeResponse update(Long id, UpdateProblemTypeRequest dto) {
+    public ProblemTypeResponseDTO update(Long id, UpdateProblemTypeRequestDTO dto) {
         ProblemType problemType = problemTypeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ProblemType not found with id: " + id));
 
@@ -81,12 +75,6 @@ public class ProblemTypeServiceImpl implements ProblemTypeService {
         problemTypeRepository.deleteById(id);
     }
 
-    /**
-     * Retrieves the currently authenticated user from the security context.
-     *
-     * @return the current {@link User}
-     * @throws RuntimeException if the user is not found
-     */
     private User getCurrentUser() {
         String phone = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByPhone(phone)

@@ -18,7 +18,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Urban Alert API")
                         .version("1.0")
-                        .description("API pour la gestion des signalements urbains"))
+                        .description("API pour la gestion des alertes urbaines"))
                 // Associe la sécurité JWT globalement à tous les endpoints listés dans Swagger
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()

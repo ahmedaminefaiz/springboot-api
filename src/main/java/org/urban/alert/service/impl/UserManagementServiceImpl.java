@@ -5,10 +5,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.urban.alert.dto.UserSummaryResponse;
-import org.urban.alert.entity.Role;
+import org.urban.alert.dto.UserSummaryResponseDTO;
+import org.urban.alert.entity.enums.RoleEnum;
 import org.urban.alert.entity.User;
-import org.urban.alert.entity.UserStatus;
+import org.urban.alert.entity.enums.UserStatusEnum;
 import org.urban.alert.exception.ApprovalException;
 import org.urban.alert.exception.UserNotFoundException;
 import org.urban.alert.repository.UserRepository;
@@ -27,10 +27,10 @@ public class UserManagementServiceImpl implements UserManagementService {
     private UserMapper userMapper;
 
     @Override
-    public List<UserSummaryResponse> getPendingAgents() {
+    public List<UserSummaryResponseDTO> getPendingAgents() {
         return userMapper.toSummaryResponseList(
-                userRepository.findByRoleAndStatus(Role.AGENT,
-                        UserStatus.PENDING_APPROVAL)
+                userRepository.findByRoleAndStatus(RoleEnum.AGENT,
+                        UserStatusEnum.PENDING_APPROVAL)
         );
     }
 
@@ -38,8 +38,8 @@ public class UserManagementServiceImpl implements UserManagementService {
     @Transactional
     public void approveAgent(Long agentId) {
         User currentUser = getCurrentUser();
-        User agent = findPendingUser(agentId, Role.AGENT);
-        agent.setStatus(UserStatus.ACTIVE);
+        User agent = findPendingUser(agentId, RoleEnum.AGENT);
+        agent.setStatus(UserStatusEnum.ACTIVE);
         agent.setSupervisor(currentUser);
         userRepository.save(agent);
     }
@@ -47,16 +47,16 @@ public class UserManagementServiceImpl implements UserManagementService {
     @Override
     @Transactional
     public void rejectAgent(Long agentId) {
-        User agent = findPendingUser(agentId, Role.AGENT);
-        agent.setStatus(UserStatus.REJECTED);
+        User agent = findPendingUser(agentId, RoleEnum.AGENT);
+        agent.setStatus(UserStatusEnum.REJECTED);
         userRepository.save(agent);
     }
 
     @Override
-    public List<UserSummaryResponse> getPendingSuperAgents() {
+    public List<UserSummaryResponseDTO> getPendingSuperAgents() {
         return userMapper.toSummaryResponseList(
-                userRepository.findByRoleAndStatus(Role.SUPER_AGENT,
-                        UserStatus.PENDING_APPROVAL)
+                userRepository.findByRoleAndStatus(RoleEnum.SUPER_AGENT,
+                        UserStatusEnum.PENDING_APPROVAL)
         );
     }
 
@@ -64,8 +64,8 @@ public class UserManagementServiceImpl implements UserManagementService {
     @Transactional
     public void approveSuperAgent(Long superAgentId) {
         User currentUser = getCurrentUser();
-        User superAgent = findPendingUser(superAgentId, Role.SUPER_AGENT);
-        superAgent.setStatus(UserStatus.ACTIVE);
+        User superAgent = findPendingUser(superAgentId, RoleEnum.SUPER_AGENT);
+        superAgent.setStatus(UserStatusEnum.ACTIVE);
         superAgent.setSupervisor(currentUser);
         userRepository.save(superAgent);
     }
@@ -73,19 +73,19 @@ public class UserManagementServiceImpl implements UserManagementService {
     @Override
     @Transactional
     public void rejectSuperAgent(Long superAgentId) {
-        User superAgent = findPendingUser(superAgentId, Role.SUPER_AGENT);
-        superAgent.setStatus(UserStatus.REJECTED);
+        User superAgent = findPendingUser(superAgentId, RoleEnum.SUPER_AGENT);
+        superAgent.setStatus(UserStatusEnum.REJECTED);
         userRepository.save(superAgent);
     }
 
-    private User findPendingUser(Long id, Role expectedRole) {
+    private User findPendingUser(Long id, RoleEnum expectedRole) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
         if (user.getRole() != expectedRole) {
             throw new ApprovalException("User is not a " +
                     expectedRole.name().toLowerCase().replace('_', '-'));
         }
-        if (user.getStatus() != UserStatus.PENDING_APPROVAL) {
+        if (user.getStatus() != UserStatusEnum.PENDING_APPROVAL) {
             throw new ApprovalException("User is not pending approval");
         }
         return user;
