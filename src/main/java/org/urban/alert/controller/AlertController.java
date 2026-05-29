@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/alerts")
+@RequestMapping("/v1/alerts")
 @RequiredArgsConstructor
 @Slf4j
 public class AlertController {
