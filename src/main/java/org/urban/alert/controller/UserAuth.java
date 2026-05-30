@@ -10,13 +10,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import
-        org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.urban.alert.annotation.Audit;
-import org.urban.alert.dto.LoginRequest;
-import org.urban.alert.dto.SignupRequest;
-import org.urban.alert.dto.VerifyPhoneRequest;
+import org.urban.alert.dto.LoginRequestDTO;
+import org.urban.alert.dto.SignupRequestDTO;
+import org.urban.alert.dto.VerifyPhoneRequestDTO;
 import org.urban.alert.service.AuthService;
 
 @RestController
@@ -40,7 +39,7 @@ public class UserAuth {
     @PostMapping(value = "/login",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> login(@RequestBody LoginRequest credentials) {
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO credentials) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(credentials.getPhone(),
@@ -66,8 +65,7 @@ public class UserAuth {
     @PostMapping(value = "/register",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> register(@Valid @RequestBody SignupRequest
-                                              credentials) {
+    public ResponseEntity<?> register(@Valid @RequestBody SignupRequestDTO credentials) {
         try {
             authService.register(credentials);
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -87,8 +85,7 @@ public class UserAuth {
     @PostMapping(value = "/verify-phone",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> verifyPhone(@Valid @RequestBody VerifyPhoneRequest
-                                                 request) {
+    public ResponseEntity<?> verifyPhone(@Valid @RequestBody VerifyPhoneRequestDTO request) {
         try {
             var response = authService.verifyPhone(request.getPhone(),
                     request.getCode());

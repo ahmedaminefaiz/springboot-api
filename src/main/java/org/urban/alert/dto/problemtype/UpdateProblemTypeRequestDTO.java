@@ -1,6 +1,5 @@
 package org.urban.alert.dto.problemtype;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateProblemTypeRequest {
+public class UpdateProblemTypeRequestDTO {
 
-    @NotBlank(message = "Le nom du type de problème est obligatoire")
     @Size(min = 2, max = 100, message = "Le nom doit contenir entre 2 et 100 caractères")
     private String name;
 

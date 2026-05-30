@@ -48,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/v1/auth/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**",
                                 "/swagger-ui.html").permitAll()
+                        .requestMatchers("/api/alerts/**").permitAll()
                         .requestMatchers("/v1/user-management/**").hasAnyRole("SUPER_AGENT", "ADMIN")
                         .anyRequest().authenticated()
                 )

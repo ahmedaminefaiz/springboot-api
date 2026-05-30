@@ -11,9 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.urban.alert.annotation.Audit;
-import org.urban.alert.dto.problemtype.CreateProblemTypeRequest;
-import org.urban.alert.dto.problemtype.ProblemTypeResponse;
-import org.urban.alert.dto.problemtype.UpdateProblemTypeRequest;
+import org.urban.alert.dto.problemtype.CreateProblemTypeRequestDTO;
+import org.urban.alert.dto.problemtype.ProblemTypeResponseDTO;
+import org.urban.alert.dto.problemtype.UpdateProblemTypeRequestDTO;
 import org.urban.alert.service.ProblemTypeService;
 
 import java.util.List;
@@ -33,7 +33,7 @@ public class ProblemTypeController {
     })
     @Audit
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ProblemTypeResponse>> getAll() {
+    public ResponseEntity<List<ProblemTypeResponseDTO>> getAll() {
         return ResponseEntity.ok(problemTypeService.getAll());
     }
 
@@ -61,9 +61,9 @@ public class ProblemTypeController {
     })
     @Audit
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> create(@Valid @RequestBody CreateProblemTypeRequest dto) {
+    public ResponseEntity<?> create(@Valid @RequestBody CreateProblemTypeRequestDTO dto) {
         try {
-            ProblemTypeResponse response = problemTypeService.create(dto);
+            ProblemTypeResponseDTO response = problemTypeService.create(dto);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -79,7 +79,7 @@ public class ProblemTypeController {
     })
     @Audit
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody UpdateProblemTypeRequest dto) {
+    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody UpdateProblemTypeRequestDTO dto) {
         try {
             return ResponseEntity.ok(problemTypeService.update(id, dto));
         } catch (RuntimeException e) {

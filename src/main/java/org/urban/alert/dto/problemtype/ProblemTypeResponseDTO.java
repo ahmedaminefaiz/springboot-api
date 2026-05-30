@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProblemTypeResponse {
+public class ProblemTypeResponseDTO {
     
     private Long id;
     private String name;
-    private String icon;
+    private String icon; //blob
     private Long adminId;
     private String adminName;
 }

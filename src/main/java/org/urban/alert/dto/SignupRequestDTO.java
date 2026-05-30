@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDate;
 
-import org.urban.alert.entity.Role;
+import org.urban.alert.entity.enums.RoleEnum;
 
 import lombok.Data;
 import lombok.Builder;
@@ -18,7 +18,7 @@ import lombok.AllArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SignupRequest {
+public class SignupRequestDTO {
     @NotBlank
     @Email
     private String email;
@@ -43,7 +43,7 @@ public class SignupRequest {
     private String password;
 
     @NotNull
-    private Role role;
+    private RoleEnum role;
 
     private Long supervisorId;
 }

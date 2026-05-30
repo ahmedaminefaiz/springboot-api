@@ -6,11 +6,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.urban.alert.dto.LoginResponse;
-import org.urban.alert.dto.SignupRequest;
-import org.urban.alert.entity.Role;
+import org.urban.alert.dto.LoginResponseDTO;
+import org.urban.alert.dto.SignupRequestDTO;
+import org.urban.alert.entity.enums.RoleEnum;
 import org.urban.alert.entity.User;
-import org.urban.alert.entity.UserStatus;
+import org.urban.alert.entity.enums.UserStatusEnum;
 import org.urban.alert.exception.PhoneAlreadyExistsException;
 import org.urban.alert.repository.UserRepository;
 import org.urban.alert.service.AuthService;
@@ -37,8 +37,7 @@ public class AuthServiceImpl implements AuthService {
     private AuthMapper authMapper;
 
     @Override
-    public UserDetails loadUserByUsername(String phone) throws
-            UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String phone) throws UsernameNotFoundException {
         User user = userRepository.findByPhone(phone)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return org.springframework.security.core.userdetails.User
@@ -49,11 +48,11 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public LoginResponse login(String phone) {
+    public LoginResponseDTO login(String phone) {
         User user = userRepository.findByPhone(phone)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        if (user.getStatus() != UserStatus.ACTIVE) {
+        if (user.getStatus() != UserStatusEnum.ACTIVE) {
             String message = switch (user.getStatus()) {
                 case PENDING_PHONE_VERIFICATION -> "Phone number not verified yet";
                 case PENDING_APPROVAL -> "Account is pending approval";
@@ -68,7 +67,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void register(SignupRequest credentials) {
+    public void register(SignupRequestDTO credentials) {
         if (userRepository.existsByPhone(credentials.getPhone())) {
             throw new PhoneAlreadyExistsException("Phone number already registered");
         }
@@ -90,7 +89,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public LoginResponse verifyPhone(String phone, String code) {
+    public LoginResponseDTO verifyPhone(String phone, String code) {
         if (!otpService.verifyCode(phone, code)) {
             throw new RuntimeException("Invalid or expired verification code");
         }
@@ -99,13 +98,13 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         user.setPhoneVerified(true);
 
-        if (user.getRole() == Role.CITOYEN) {
-            user.setStatus(UserStatus.ACTIVE);
+        if (user.getRole() == RoleEnum.CITOYEN) {
+            user.setStatus(UserStatusEnum.ACTIVE);
             userRepository.save(user);
             return authMapper.toLoginResponse(user, jwtService.generateToken(user));
         }
 
-        user.setStatus(UserStatus.PENDING_APPROVAL);
+        user.setStatus(UserStatusEnum.PENDING_APPROVAL);
         userRepository.save(user);
         return null;
     }

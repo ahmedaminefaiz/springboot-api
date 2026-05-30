@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.urban.alert.entity.Role;
+import org.urban.alert.entity.enums.RoleEnum;
 import org.urban.alert.entity.User;
-import org.urban.alert.entity.UserStatus;
+import org.urban.alert.entity.enums.UserStatusEnum;
 
 /**
  * JPA repository for {@link User} entities.
@@ -56,5 +56,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @param status the account status to filter by (e.g. {@link UserStatus#PENDING_APPROVAL})
      * @return a list of matching users; empty list if none found
      */
-    List<User> findByRoleAndStatus(Role role, UserStatus status);
+    List<User> findByRoleAndStatus(RoleEnum role, UserStatusEnum status);
 }

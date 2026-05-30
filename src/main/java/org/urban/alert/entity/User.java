@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+import org.urban.alert.entity.enums.RoleEnum;
+import org.urban.alert.entity.enums.UserStatusEnum;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -58,11 +61,11 @@ public class User {
     @NonNull
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
-    private Role role;
+    private RoleEnum role;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
-    private UserStatus status = UserStatus.PENDING_PHONE_VERIFICATION;
+    private UserStatusEnum status = UserStatusEnum.PENDING_PHONE_VERIFICATION;
 
     @Column(name = "phone_verified", nullable = false)
     private boolean phoneVerified = false;

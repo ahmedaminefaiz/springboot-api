@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VerifyPhoneRequest {
+public class VerifyPhoneRequestDTO {
 
     @NotBlank
     @Pattern(regexp = "^(?:\\+212|0)[67]\\d{8}$", message = "Invalid Moroccan phone number")
