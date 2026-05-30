@@ -1,6 +1,7 @@
 package org.urban.alert.dto;
 import lombok.Data;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
