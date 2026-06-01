@@ -32,6 +32,10 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
     @Query("SELECT a FROM Alert a WHERE LOWER(a.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(a.description) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Alert> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
+    Optional<Alert> findByIdAndStatusNot(Long id, AlertStatusEnum status);
+
+    List<Alert> findByProblemId(Long problemId);
+
     Optional<Alert> findByIdAndUserId(Long id, Long userId);
 
     Long countByStatus(AlertStatusEnum status);
