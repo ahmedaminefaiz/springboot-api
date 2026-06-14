@@ -19,7 +19,7 @@ import org.urban.alert.dto.VerifyPhoneRequestDTO;
 import org.urban.alert.service.AuthService;
 
 @RestController
-@CrossOrigin(origins = "http://ebd2-frontendapp-daf17h-3adb20-192-166-204-204.traefik.me/")
+@CrossOrigin(origins = {"http://ebd2-frontendapp-daf17h-3adb20-192-166-204-204.traefik.me/","http://localhost:4200"})
 @RequestMapping("/v1/auth")
 public class UserAuth {
 

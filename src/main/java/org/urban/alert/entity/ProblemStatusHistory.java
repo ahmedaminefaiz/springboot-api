@@ -17,7 +17,7 @@ public class ProblemStatusHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     private ProblemStatusEnum previousStatus;
 

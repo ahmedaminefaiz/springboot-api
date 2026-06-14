@@ -19,9 +19,9 @@ import org.urban.alert.service.ProblemTypeService;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = {"http://ebd2-frontendapp-daf17h-3adb20-192-166-204-204.traefik.me/","http://localhost:4200"})
 @RequestMapping("/v1/problem-types")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
 public class ProblemTypeController {
 
     private final ProblemTypeService problemTypeService;
@@ -29,7 +29,7 @@ public class ProblemTypeController {
     @Operation(summary = "Get all problem types")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List returned successfully"),
-            @ApiResponse(responseCode = "403", description = "Access denied")
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
     })
     @Audit
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -44,6 +44,7 @@ public class ProblemTypeController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @Audit
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getById(@PathVariable Long id) {
         try {
@@ -60,6 +61,7 @@ public class ProblemTypeController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @Audit
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> create(@Valid @RequestBody CreateProblemTypeRequestDTO dto) {
         try {
@@ -78,6 +80,7 @@ public class ProblemTypeController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @Audit
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody UpdateProblemTypeRequestDTO dto) {
         try {
@@ -97,6 +100,7 @@ public class ProblemTypeController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @Audit
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {

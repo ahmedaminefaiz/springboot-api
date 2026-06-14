@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@CrossOrigin(origins = {"http://ebd2-frontendapp-daf17h-3adb20-192-166-204-204.traefik.me/","http://localhost:4200"})
 @RequestMapping("/v1/problems")
 @RequiredArgsConstructor
 @Slf4j

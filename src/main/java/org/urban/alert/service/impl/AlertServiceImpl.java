@@ -128,7 +128,7 @@ public class AlertServiceImpl implements AlertService {
     public void deleteAlert(Long id, Long userId) {
         log.info("Deleting alert with ID: {} for user: {}", id, userId);
 
-        Alert alert = alertRepository.findByIdAndUserId(id, userId)
+        alertRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new AlertNotFoundException(id));
 
         // Vérifier que le statut est NEW avant suppression
