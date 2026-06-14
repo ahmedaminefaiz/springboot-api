@@ -46,10 +46,10 @@ public class Alert {
     @Column(name = "is_anonymous", nullable = false)
     private Boolean isAnonymous;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String images; // JSON array of image URLs
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String videos; // JSON array of video URLs
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -70,7 +70,12 @@ public class Alert {
     @JoinColumn(name = "category_id", nullable = false)
     private ProblemType category;
 
-    // OneToOne: Une alerte pour un ticket (nullable)
+    // ManyToOne: Plusieurs alertes peuvent être assignées à un problème
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "problem_id", nullable = true)
+    private Problem problem;
+
+// Garder ticket_id pour la compatibilité rétroactive (optionnel)
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ticket_id", nullable = true)
     private Ticket ticket;
@@ -90,11 +95,15 @@ public class Alert {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        if (this.status == null) {
+        if (this.status == null ) {
             this.status = AlertStatusEnum.NEW;
+            
         }
         if (this.isAnonymous == null) {
             this.isAnonymous = false;
+        }
+        if(this.priority == null) {
+            this.priority = AlertPriorityEnum.MEDIUM;
         }
     }
 
