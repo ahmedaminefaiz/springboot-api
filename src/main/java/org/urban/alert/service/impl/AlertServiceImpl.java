@@ -25,8 +25,6 @@ import org.urban.alert.service.mapper.AlertMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Transactional
@@ -193,113 +191,41 @@ public class AlertServiceImpl implements AlertService {
     @Override
     public AlertResponseDTO addImage(Long alertId, AddMediaRequestDTO request) {
         log.info("Adding image to alert: {}", alertId);
-
         Alert alert = alertRepository.findById(alertId)
                 .orElseThrow(() -> new AlertNotFoundException(alertId));
-
-        try {
-            String updatedImages = alertMapper.addImageToJsonArray(
-                    alert.getImages(),
-                    request.getMediaUrl()
-            );
-            alert.setImages(updatedImages);
-
-            Alert updatedAlert = alertRepository.save(alert);
-            log.info("Image added to alert: {}", alertId);
-
-            return alertMapper.entityToAlertResponse(updatedAlert);
-        } catch (Exception e) {
-            log.error("Error adding image to alert: {}", alertId, e);
-            throw new InvalidAlertException("Erreur lors de l'ajout de l'image: " + e.getMessage());
-        }
+        alert.getImages().add(request.getMediaUrl());
+        return alertMapper.entityToAlertResponse(alertRepository.save(alert));
     }
 
     @Override
     public AlertResponseDTO addVideo(Long alertId, AddMediaRequestDTO request) {
         log.info("Adding video to alert: {}", alertId);
-
         Alert alert = alertRepository.findById(alertId)
                 .orElseThrow(() -> new AlertNotFoundException(alertId));
-
-        try {
-            String updatedVideos = alertMapper.addVideoToJsonArray(
-                    alert.getVideos(),
-                    request.getMediaUrl()
-            );
-            alert.setVideos(updatedVideos);
-
-            Alert updatedAlert = alertRepository.save(alert);
-            log.info("Video added to alert: {}", alertId);
-
-            return alertMapper.entityToAlertResponse(updatedAlert);
-        } catch (Exception e) {
-            log.error("Error adding video to alert: {}", alertId, e);
-            throw new InvalidAlertException("Erreur lors de l'ajout de la vidéo: " + e.getMessage());
-        }
+        alert.getVideos().add(request.getMediaUrl());
+        return alertMapper.entityToAlertResponse(alertRepository.save(alert));
     }
 
     @Override
     public AlertResponseDTO removeImage(Long alertId, String imageUrl) {
         log.info("Removing image from alert: {}", alertId);
-
         Alert alert = alertRepository.findById(alertId)
                 .orElseThrow(() -> new AlertNotFoundException(alertId));
-
-        try {
-            List<String> images = alertMapper.parseJsonArray(alert.getImages());
-
-            if (!images.contains(imageUrl)) {
-                throw new InvalidAlertException("L'image n'a pas été trouvée dans l'alerte");
-            }
-
-            String updatedImages = alertMapper.removeImageFromJsonArray(
-                    alert.getImages(),
-                    imageUrl
-            );
-            alert.setImages(updatedImages);
-
-            Alert updatedAlert = alertRepository.save(alert);
-            log.info("Image removed from alert: {}", alertId);
-
-            return alertMapper.entityToAlertResponse(updatedAlert);
-        } catch (InvalidAlertException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("Error removing image from alert: {}", alertId, e);
-            throw new InvalidAlertException("Erreur lors de la suppression de l'image: " + e.getMessage());
+        if (!alert.getImages().remove(imageUrl)) {
+            throw new InvalidAlertException("L'image n'a pas été trouvée dans l'alerte");
         }
+        return alertMapper.entityToAlertResponse(alertRepository.save(alert));
     }
 
     @Override
     public AlertResponseDTO removeVideo(Long alertId, String videoUrl) {
         log.info("Removing video from alert: {}", alertId);
-
         Alert alert = alertRepository.findById(alertId)
                 .orElseThrow(() -> new AlertNotFoundException(alertId));
-
-        try {
-            List<String> videos = alertMapper.parseJsonArray(alert.getVideos());
-
-            if (!videos.contains(videoUrl)) {
-                throw new InvalidAlertException("La vidéo n'a pas été trouvée dans l'alerte");
-            }
-
-            String updatedVideos = alertMapper.removeVideoFromJsonArray(
-                    alert.getVideos(),
-                    videoUrl
-            );
-            alert.setVideos(updatedVideos);
-
-            Alert updatedAlert = alertRepository.save(alert);
-            log.info("Video removed from alert: {}", alertId);
-
-            return alertMapper.entityToAlertResponse(updatedAlert);
-        } catch (InvalidAlertException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("Error removing video from alert: {}", alertId, e);
-            throw new InvalidAlertException("Erreur lors de la suppression de la vidéo: " + e.getMessage());
+        if (!alert.getVideos().remove(videoUrl)) {
+            throw new InvalidAlertException("La vidéo n'a pas été trouvée dans l'alerte");
         }
+        return alertMapper.entityToAlertResponse(alertRepository.save(alert));
     }
 
     // ========== Search & Filter ==========

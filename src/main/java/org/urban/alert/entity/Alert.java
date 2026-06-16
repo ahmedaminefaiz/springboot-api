@@ -46,11 +46,15 @@ public class Alert {
     @Column(name = "is_anonymous", nullable = false)
     private Boolean isAnonymous;
 
-    @Column(columnDefinition = "TEXT")
-    private String images; // JSON array of image URLs
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "alert_images", joinColumns = @JoinColumn(name = "alert_id"))
+    @Column(name = "image_url", length = 2048)
+    private List<String> images = new ArrayList<>();
 
-    @Column(columnDefinition = "TEXT")
-    private String videos; // JSON array of video URLs
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "alert_videos", joinColumns = @JoinColumn(name = "alert_id"))
+    @Column(name = "video_url", length = 2048)
+    private List<String> videos = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
