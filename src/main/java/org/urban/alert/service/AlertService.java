@@ -60,11 +60,6 @@ public interface AlertService {
     AlertStatusEnum getAlertStatus(Long alertId);
 
     /**
-     * Vérifie si l'utilisateur a l'autorisation de modifier le statut d'une alerte.
-     */
-    void verifyUserCanChangeStatus(Long userId);
-
-    /**
      * Change le statut d'une alerte
      */
     AlertResponseDTO changeStatus(Long alertId, AlertStatusEnum newStatus);

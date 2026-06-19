@@ -2,7 +2,7 @@ package org.urban.alert.service.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.urban.alert.dto.LoginResponseDTO;
+import org.urban.alert.dto.login.LoginResponseDTO;
 import org.urban.alert.entity.User;
 
 @Mapper(componentModel = "spring")

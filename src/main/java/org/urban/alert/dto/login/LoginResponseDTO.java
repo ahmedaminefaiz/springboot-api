@@ -1,4 +1,4 @@
-package org.urban.alert.dto;
+package org.urban.alert.dto.login;
 
 import lombok.Data;
 import lombok.AllArgsConstructor;

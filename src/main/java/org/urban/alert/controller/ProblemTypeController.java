@@ -21,7 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/problem-types")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+
 public class ProblemTypeController {
 
     private final ProblemTypeService problemTypeService;
@@ -32,6 +32,7 @@ public class ProblemTypeController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @Audit
+    @PreAuthorize("hasRole('CITOYEN')")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ProblemTypeResponseDTO>> getAll() {
         return ResponseEntity.ok(problemTypeService.getAll());
@@ -44,6 +45,7 @@ public class ProblemTypeController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @Audit
+    @PreAuthorize("hasRole('CITOYEN')")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getById(@PathVariable Long id) {
         try {
@@ -60,6 +62,7 @@ public class ProblemTypeController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @Audit
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> create(@Valid @RequestBody CreateProblemTypeRequestDTO dto) {
         try {

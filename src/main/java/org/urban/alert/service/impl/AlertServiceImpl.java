@@ -13,7 +13,6 @@ import org.urban.alert.dto.alert.UpdateAlertRequestDTO;
 import org.urban.alert.entity.Alert;
 import org.urban.alert.entity.enums.AlertStatusEnum;
 import org.urban.alert.entity.User;
-import org.urban.alert.entity.enums.RoleEnum;
 import org.urban.alert.exception.*;
 import org.urban.alert.exception.alert.InvalidAlertException;
 import org.urban.alert.exception.alert.AlertNotFoundException;
@@ -160,18 +159,6 @@ public class AlertServiceImpl implements AlertService {
                 .orElseThrow(() -> new AlertNotFoundException(alertId));
 
         return alert.getStatus();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public void verifyUserCanChangeStatus(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-
-        RoleEnum role = user.getRole();
-        if (role == RoleEnum.CITOYEN) {
-            throw new SecurityException("Accès refusé : Seuls les agents, super-agents et administrateurs peuvent changer le statut d'une alerte.");
-        }
     }
 
     @Override

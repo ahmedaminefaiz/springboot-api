@@ -1,7 +1,7 @@
 package org.urban.alert.service;
 
 import java.util.List;
-import org.urban.alert.dto.UserSummaryResponseDTO;
+import org.urban.alert.dto.usersummary.UserSummaryResponseDTO;
 
 public interface UserManagementService {
 

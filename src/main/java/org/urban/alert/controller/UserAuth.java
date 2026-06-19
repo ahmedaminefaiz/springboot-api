@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,21 +13,18 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.urban.alert.annotation.Audit;
-import org.urban.alert.dto.LoginRequestDTO;
-import org.urban.alert.dto.SignupRequestDTO;
-import org.urban.alert.dto.VerifyPhoneRequestDTO;
+import org.urban.alert.dto.login.LoginRequestDTO;
+import org.urban.alert.dto.signup.SignupRequestDTO;
+import org.urban.alert.dto.verifyphone.VerifyPhoneRequestDTO;
 import org.urban.alert.service.AuthService;
 
 @RestController
-@CrossOrigin(origins = "http://ebd2-frontendapp-daf17h-3adb20-192-166-204-204.traefik.me/")
 @RequestMapping("/v1/auth")
+@RequiredArgsConstructor
 public class UserAuth {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private AuthService authService;
+    private final AuthenticationManager authenticationManager;
+    private final AuthService authService;
 
     @Operation(summary = "Login with phone and password")
     @ApiResponses(value = {
@@ -40,9 +37,10 @@ public class UserAuth {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO credentials) {
+        String normalizedPhone = credentials.getPhone().replaceAll("[\\s-]+", "").replaceFirst("^0([67])", "+212$1");
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(credentials.getPhone(),
+                    new UsernamePasswordAuthenticationToken(normalizedPhone,
                             credentials.getPassword())
             );
         } catch (BadCredentialsException e) {
@@ -50,7 +48,7 @@ public class UserAuth {
         }
 
         try {
-            return ResponseEntity.ok(authService.login(credentials.getPhone()));
+            return ResponseEntity.ok(authService.login(normalizedPhone));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }

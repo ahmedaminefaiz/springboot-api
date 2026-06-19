@@ -1,4 +1,4 @@
-package org.urban.alert.dto;
+package org.urban.alert.dto.verifyphone;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

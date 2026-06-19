@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.urban.alert.dto.alert.AddMediaRequestDTO;
 import org.urban.alert.dto.alert.CreateAlertRequestDTO;
@@ -46,6 +46,7 @@ public class AlertController {
             @ApiResponse(responseCode = "400", description = "Validation error or bad request"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
+    @PreAuthorize("hasRole('CITOYEN')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createAlert(@Valid @RequestBody CreateAlertRequestDTO request) {
         try {
@@ -115,6 +116,7 @@ public class AlertController {
             @ApiResponse(responseCode = "200", description = "List of user alerts retrieved successfully"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
+    @PreAuthorize("hasRole('CITOYEN')")
     @GetMapping(value = "/user/my-alerts", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getUserAlerts(
             @RequestParam(defaultValue = "0") int page,
@@ -141,6 +143,7 @@ public class AlertController {
             @ApiResponse(responseCode = "404", description = "Alert not found"),
             @ApiResponse(responseCode = "409", description = "Alert status is not NEW (modification not allowed)")
     })
+    @PreAuthorize("hasRole('CITOYEN')")
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateAlert(
             @PathVariable Long id,
@@ -172,6 +175,7 @@ public class AlertController {
             @ApiResponse(responseCode = "404", description = "Alert not found"),
             @ApiResponse(responseCode = "409", description = "Alert status is not NEW (deletion not allowed)")
     })
+    @PreAuthorize("hasRole('CITOYEN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteAlert(@PathVariable Long id) {
         try {
@@ -199,6 +203,7 @@ public class AlertController {
             @ApiResponse(responseCode = "400", description = "Validation error or bad request"),
             @ApiResponse(responseCode = "404", description = "Alert not found")
     })
+    @PreAuthorize("hasRole('CITOYEN')")
     @PostMapping(value = "/{id}/images", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> addImage(
             @PathVariable Long id,
@@ -226,6 +231,7 @@ public class AlertController {
             @ApiResponse(responseCode = "400", description = "Validation error or bad request"),
             @ApiResponse(responseCode = "404", description = "Alert not found")
     })
+    @PreAuthorize("hasRole('CITOYEN')")
     @PostMapping(value = "/{id}/videos", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> addVideo(
             @PathVariable Long id,
@@ -253,6 +259,7 @@ public class AlertController {
             @ApiResponse(responseCode = "400", description = "Image not found in alert or bad request"),
             @ApiResponse(responseCode = "404", description = "Alert not found")
     })
+    @PreAuthorize("hasRole('CITOYEN')")
     @DeleteMapping(value = "/{id}/images", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> removeImage(
             @PathVariable Long id,
@@ -279,6 +286,7 @@ public class AlertController {
             @ApiResponse(responseCode = "400", description = "Video not found in alert or bad request"),
             @ApiResponse(responseCode = "404", description = "Alert not found")
     })
+    @PreAuthorize("hasRole('CITOYEN')")
     @DeleteMapping(value = "/{id}/videos", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> removeVideo(
             @PathVariable Long id,
@@ -331,6 +339,7 @@ public class AlertController {
             @ApiResponse(responseCode = "200", description = "List of alerts retrieved successfully"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
+    @PreAuthorize("hasAnyRole('AGENT', 'SUPER_AGENT', 'ADMIN')")
     @GetMapping(value = "/status/{status}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAlertsByStatus(
             @PathVariable AlertStatusEnum status,
@@ -385,22 +394,15 @@ public class AlertController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Alert or User not found")
     })
+    @PreAuthorize("hasAnyRole('AGENT', 'SUPER_AGENT', 'ADMIN')")
     @PatchMapping(value = "/{id}/status", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> changeStatus(
             @PathVariable Long id,
             @RequestParam AlertStatusEnum status) {
         try {
             log.info("PATCH /api/alerts/{}/status - Changing status to {}", id, status);
-            Long userId = getCurrentUserId();
-            alertService.verifyUserCanChangeStatus(userId);
             AlertResponseDTO response = alertService.changeStatus(id, status);
             return ResponseEntity.ok(response);
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(createErrorResponse("Utilisateur non trouvé", e.getMessage()));
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(createErrorResponse("Accès refusé", e.getMessage()));
         } catch (AlertNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(createErrorResponse("Alerte non trouvée", e.getMessage()));
@@ -444,6 +446,7 @@ public class AlertController {
             @ApiResponse(responseCode = "200", description = "Count retrieved successfully"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
+    @PreAuthorize("hasAnyRole('AGENT', 'SUPER_AGENT', 'ADMIN')")
     @GetMapping(value = "/stats/count-by-status", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> countByStatus(@RequestParam AlertStatusEnum status) {
         try {
@@ -468,6 +471,7 @@ public class AlertController {
             @ApiResponse(responseCode = "200", description = "Count retrieved successfully"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
+    @PreAuthorize("hasRole('CITOYEN')")
     @GetMapping(value = "/stats/user-count", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> countUserAlerts() {
         try {

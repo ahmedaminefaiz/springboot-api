@@ -1,4 +1,4 @@
-package org.urban.alert.dto;
+package org.urban.alert.dto.usersummary;
 
 import lombok.Data;
 import lombok.AllArgsConstructor;

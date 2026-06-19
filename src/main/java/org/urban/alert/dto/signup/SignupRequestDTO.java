@@ -1,4 +1,4 @@
-package org.urban.alert.dto;
+package org.urban.alert.dto.signup;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

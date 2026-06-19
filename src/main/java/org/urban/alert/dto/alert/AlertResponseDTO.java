@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.urban.alert.dto.UserSummaryResponseDTO;
+import org.urban.alert.dto.usersummary.UserSummaryResponseDTO;
 import org.urban.alert.dto.problemtype.ProblemTypeResponseDTO;
 import org.urban.alert.entity.enums.AlertStatusEnum;
 import org.urban.alert.entity.enums.AlertPriorityEnum;
