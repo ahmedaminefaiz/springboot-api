@@ -1,11 +1,11 @@
 package org.urban.alert.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.urban.alert.dto.UserSummaryResponseDTO;
+import org.urban.alert.dto.usersummary.UserSummaryResponseDTO;
 import org.urban.alert.entity.enums.RoleEnum;
 import org.urban.alert.entity.User;
 import org.urban.alert.entity.enums.UserStatusEnum;
@@ -18,13 +18,11 @@ import org.urban.alert.service.mapper.UserMapper;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserManagementServiceImpl implements UserManagementService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private UserMapper userMapper;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     public List<UserSummaryResponseDTO> getPendingAgents() {

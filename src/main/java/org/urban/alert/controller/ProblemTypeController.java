@@ -32,6 +32,7 @@ public class ProblemTypeController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @Audit
+    @PreAuthorize("hasRole('CITOYEN')")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ProblemTypeResponseDTO>> getAll() {
         return ResponseEntity.ok(problemTypeService.getAll());
@@ -44,6 +45,7 @@ public class ProblemTypeController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @Audit
+    @PreAuthorize("hasRole('CITOYEN')")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getById(@PathVariable Long id) {
@@ -61,6 +63,7 @@ public class ProblemTypeController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @Audit
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> create(@Valid @RequestBody CreateProblemTypeRequestDTO dto) {

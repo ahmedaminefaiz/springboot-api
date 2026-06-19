@@ -19,6 +19,8 @@ target/
 *.iml
 *.ipr
 .env
+src/main/resources/application-local.properties
+.DS_Store
 
 ### NetBeans ###
 /nbproject/private/

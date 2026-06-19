@@ -1,6 +1,6 @@
 package org.urban.alert.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.urban.alert.entity.PhoneVerification;
@@ -13,13 +13,11 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class OtpServiceImpl implements OtpService {
 
-    @Autowired
-    private PhoneVerificationRepository phoneVerificationRepository;
-
-    @Autowired
-    private WhatsAppService whatsAppService;
+    private final PhoneVerificationRepository phoneVerificationRepository;
+    private final WhatsAppService whatsAppService;
 
     private final SecureRandom secureRandom = new SecureRandom();
 

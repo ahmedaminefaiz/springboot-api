@@ -1,13 +1,13 @@
 package org.urban.alert.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.urban.alert.dto.LoginResponseDTO;
-import org.urban.alert.dto.SignupRequestDTO;
+import org.urban.alert.dto.login.LoginResponseDTO;
+import org.urban.alert.dto.signup.SignupRequestDTO;
 import org.urban.alert.entity.enums.RoleEnum;
 import org.urban.alert.entity.User;
 import org.urban.alert.entity.enums.UserStatusEnum;
@@ -19,22 +19,14 @@ import org.urban.alert.service.OtpService;
 import org.urban.alert.service.mapper.AuthMapper;
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private OtpService otpService;
-
-    @Autowired
-    private AuthMapper authMapper;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final OtpService otpService;
+    private final AuthMapper authMapper;
 
     @Override
     public UserDetails loadUserByUsername(String phone) throws UsernameNotFoundException {
@@ -68,13 +60,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void register(SignupRequestDTO credentials) {
-        if (userRepository.existsByPhone(credentials.getPhone())) {
+        String normalizedPhone = credentials.getPhone().replaceAll("[\\s-]+", "").replaceFirst("^0([67])", "+212$1");
+        if (userRepository.existsByPhone(normalizedPhone)) {
             throw new PhoneAlreadyExistsException("Phone number already registered");
         }
 
         User user = new User(
                 credentials.getEmail(),
-                credentials.getPhone(),
+                normalizedPhone,
                 credentials.getNom(),
                 credentials.getPrenom(),
                 credentials.getDateNaissance(),
@@ -84,7 +77,7 @@ public class AuthServiceImpl implements AuthService {
         );
         userRepository.save(user);
 
-        otpService.sendOtp(credentials.getPhone());
+        otpService.sendOtp(normalizedPhone);
     }
 
     @Override

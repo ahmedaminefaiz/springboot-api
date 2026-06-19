@@ -3,14 +3,14 @@ package org.urban.alert.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.urban.alert.annotation.Audit;
-import org.urban.alert.dto.UserSummaryResponseDTO;
+import org.urban.alert.dto.usersummary.UserSummaryResponseDTO;
 import org.urban.alert.exception.ApprovalException;
 import org.urban.alert.exception.UserNotFoundException;
 import org.urban.alert.service.UserManagementService;
@@ -18,12 +18,11 @@ import org.urban.alert.service.UserManagementService;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://ebd2-frontendapp-daf17h-3adb20-192-166-204-204.traefik.me/")
 @RequestMapping("/v1/user-management")
+@RequiredArgsConstructor
 public class UserManagementController {
 
-    @Autowired
-    private UserManagementService userManagementService;
+    private final UserManagementService userManagementService;
 
     @Operation(summary = "Get all agents pending approval")
     @ApiResponses(value = {

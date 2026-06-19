@@ -1,8 +1,8 @@
 package org.urban.alert.service;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.urban.alert.dto.LoginResponseDTO;
-import org.urban.alert.dto.SignupRequestDTO;
+import org.urban.alert.dto.login.LoginResponseDTO;
+import org.urban.alert.dto.signup.SignupRequestDTO;
 
 public interface AuthService extends UserDetailsService {
 
