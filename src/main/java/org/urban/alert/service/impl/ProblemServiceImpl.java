@@ -13,6 +13,7 @@ import org.urban.alert.exception.UserNotFoundException;
 import org.urban.alert.exception.alert.AlertNotFoundException;
 import org.urban.alert.exception.problem.*;
 import org.urban.alert.repository.*;
+import org.urban.alert.service.NotificationService;
 import org.urban.alert.service.ProblemService;
 import org.urban.alert.service.mapper.ProblemMapper;
 import org.springframework.security.core.Authentication;
@@ -33,6 +34,7 @@ public class ProblemServiceImpl implements ProblemService {
     private final UserRepository userRepository;
     private final ProblemStatusHistoryRepository historyRepository;
     private final ProblemMapper problemMapper;
+    private final NotificationService notificationService;
 
     // ========== CRUD Operations ==========
 
@@ -456,15 +458,18 @@ public class ProblemServiceImpl implements ProblemService {
         Problem problem = problemRepository.findById(problemId)
                 .orElseThrow(() -> new ProblemNotFoundException(problemId));
 
-        // Récupérer tous les citoyens qui ont créé les alertes
         for (Alert alert : problem.getAlerts()) {
-            User alertCreator = alert.getUser();
-            String message = String.format("Votre alerte '%s' est %s", 
-                    alert.getTitle(), 
-                    newStatus);
-
-            // TODO: Implémenter la notification réelle (SMS, Email, Push, etc.)
-            log.info("Notifying user {} with message: {}", alertCreator.getPhone(), message);
+            try {
+                AlertStatusEnum statusEnum = AlertStatusEnum.valueOf(newStatus);
+                notificationService.notifyAlertStatusChange(
+                        alert.getUser(),
+                        alert.getTitle(),
+                        statusEnum,
+                        alert.getId()
+                );
+            } catch (IllegalArgumentException e) {
+                log.warn("Statut inconnu pour la notification: {}", newStatus);
+            }
         }
     }
     @Override

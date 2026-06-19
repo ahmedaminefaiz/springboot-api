@@ -59,6 +59,33 @@ public class WhatsAppServiceImpl implements WhatsAppService {
         }
     }
 
+    @Override
+    public void sendNotification(String recipientPhone, String message) {
+        String normalizedPhone = normalizePhone(recipientPhone);
+        log.info("Sending WhatsApp notification to {}", normalizedPhone);
+
+        Map<String, Object> body = Map.of(
+                "messaging_product", "whatsapp",
+                "to", normalizedPhone,
+                "type", "text",
+                "text", Map.of("body", message)
+        );
+
+        try {
+            ResponseEntity<String> response = restClient.post()
+                    .uri(apiUrl + "/" + phoneNumberId + "/messages")
+                    .header("Authorization", "Bearer " + accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body)
+                    .retrieve()
+                    .toEntity(String.class);
+            log.info("WhatsApp notification sent [{}]", response.getStatusCode());
+        } catch (HttpClientErrorException e) {
+            log.error("WhatsApp notification error [{}]: {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw e;
+        }
+    }
+
     private String normalizePhone(String phone) {
         if (phone.startsWith("+")) return phone.substring(1);
         if (phone.startsWith("0")) return "212" + phone.substring(1);

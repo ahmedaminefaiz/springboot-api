@@ -15,4 +15,6 @@ public interface WhatsAppService {
      * @param code           the OTP code to include in the message body
      */
     void sendOtp(String recipientPhone, String code);
+
+    void sendNotification(String recipientPhone, String message);
 }
