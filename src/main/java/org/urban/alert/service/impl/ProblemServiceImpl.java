@@ -315,6 +315,19 @@ public class ProblemServiceImpl implements ProblemService {
         return problemMapper.entityToProblemResponse(updatedProblem);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProblemResponseDTO> getProblemsRelatedToMyAlerts(Long userId, Pageable pageable) {
+        log.info("Fetching problems related to alerts created by user: {}", userId);
+
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException(userId);
+        }
+
+        return problemRepository.findByAlertCreatorId(userId, pageable)
+                .map(problemMapper::entityToProblemResponse);
+    }
+
     // ========== Status Management ==========
 
     @Override
