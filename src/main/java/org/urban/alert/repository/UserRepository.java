@@ -57,4 +57,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return a list of matching users; empty list if none found
      */
     List<User> findByRoleAndStatus(RoleEnum role, UserStatusEnum status);
+
+    List<User> findByRoleAndSupervisorId(RoleEnum role, Long supervisorId);
 }

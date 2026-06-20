@@ -25,6 +25,7 @@ import org.urban.alert.exception.UserNotFoundException;
 import org.urban.alert.service.AlertService;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -92,6 +93,7 @@ public class AlertController {
             @ApiResponse(responseCode = "200", description = "List of alerts retrieved successfully"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAllAlerts(
             @RequestParam(defaultValue = "0") int page,
@@ -485,6 +487,60 @@ public class AlertController {
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(createErrorResponse("Utilisateur non trouvé", e.getMessage()));
+        }
+    }
+
+    /**
+     * Récupère les alertes non encore qualifiées en problème (SUPER_AGENT seulement)
+     */
+    @Operation(summary = "Get unqualified alerts (not yet linked to a problem)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Unqualified alerts retrieved successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PreAuthorize("hasRole('SUPER_AGENT')")
+    @GetMapping(value = "/unqualified", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUnqualifiedAlerts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            log.info("GET /v1/alerts/unqualified - Fetching unqualified alerts");
+            Pageable pageable = PageRequest.of(page, size);
+            Page<AlertResponseDTO> response = alertService.getUnqualifiedAlerts(pageable);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error fetching unqualified alerts", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Erreur lors de la récupération", e.getMessage()));
+        }
+    }
+
+    /**
+     * Récupère les alertes similaires à une alerte donnée (même catégorie, proximité géographique)
+     */
+    @Operation(summary = "Get similar unqualified alerts for a given alert")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Similar alerts retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Alert not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
+    @PreAuthorize("hasRole('SUPER_AGENT')")
+    @GetMapping(value = "/{id}/similar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getSimilarAlerts(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "300") double radius) {
+        try {
+            log.info("GET /v1/alerts/{}/similar - radius={}m", id, radius);
+            List<AlertResponseDTO> response = alertService.getSimilarAlerts(id, radius);
+            return ResponseEntity.ok(response);
+        } catch (AlertNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(createErrorResponse("Alerte non trouvée", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error fetching similar alerts for alert {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Erreur lors de la récupération des alertes similaires", e.getMessage()));
         }
     }
 

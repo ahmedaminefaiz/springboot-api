@@ -8,6 +8,8 @@ import org.urban.alert.dto.alert.AlertResponseDTO;
 import org.urban.alert.dto.alert.UpdateAlertRequestDTO;
 import org.urban.alert.entity.enums.AlertStatusEnum;
 
+import java.util.List;
+
 public interface AlertService {
 
     /**
@@ -87,6 +89,16 @@ public interface AlertService {
     AlertResponseDTO removeVideo(Long alertId, String videoUrl);
 
     // ========== Search & Filter ==========
+
+    /**
+     * Récupère les alertes non encore qualifiées en problème (problem IS NULL)
+     */
+    Page<AlertResponseDTO> getUnqualifiedAlerts(Pageable pageable);
+
+    /**
+     * Récupère les alertes similaires (même catégorie, proximité géographique, non qualifiées)
+     */
+    List<AlertResponseDTO> getSimilarAlerts(Long alertId, double radiusMeters);
 
     /**
      * Recherche les alertes par catégorie

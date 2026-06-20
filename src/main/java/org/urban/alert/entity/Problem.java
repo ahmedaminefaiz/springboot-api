@@ -51,10 +51,12 @@ public class Problem {
     private User assignedTo; // Doit être AGENT
 
     // OneToMany: Un problème peut avoir plusieurs alertes (pas de cascade : ON DELETE SET NULL en base)
+    @Builder.Default
     @OneToMany(mappedBy = "problem", fetch = FetchType.LAZY)
     private List<Alert> alerts = new ArrayList<>();
 
     // OneToMany: Historique des changements de statut
+    @Builder.Default
     @OneToMany(mappedBy = "problem", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @OrderBy("changedAt DESC")
     private List<ProblemStatusHistory> statusHistory = new ArrayList<>();

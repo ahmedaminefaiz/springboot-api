@@ -76,6 +76,21 @@ public class UserManagementServiceImpl implements UserManagementService {
         userRepository.save(superAgent);
     }
 
+    @Override
+    public List<UserSummaryResponseDTO> getActiveAgents() {
+        return userMapper.toSummaryResponseList(
+                userRepository.findByRoleAndStatus(RoleEnum.AGENT, UserStatusEnum.ACTIVE)
+        );
+    }
+
+    @Override
+    public List<UserSummaryResponseDTO> getMyAgents() {
+        User currentUser = getCurrentUser();
+        return userMapper.toSummaryResponseList(
+                userRepository.findByRoleAndSupervisorId(RoleEnum.AGENT, currentUser.getId())
+        );
+    }
+
     private User findPendingUser(Long id, RoleEnum expectedRole) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));

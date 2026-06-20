@@ -38,6 +38,28 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
 
     Optional<Alert> findByIdAndUserId(Long id, Long userId);
 
+    Page<Alert> findByProblemIsNull(Pageable pageable);
+
+    @Query(value = """
+            SELECT * FROM alerts
+            WHERE problem_id IS NULL
+            AND id != :alertId
+            AND category_id = :categoryId
+            AND (6371000 * acos(LEAST(1.0, GREATEST(-1.0,
+                cos(radians(:lat)) * cos(radians(latitude)) *
+                cos(radians(longitude) - radians(:lng)) +
+                sin(radians(:lat)) * sin(radians(latitude))
+            )))) <= :radiusMeters
+            ORDER BY created_at DESC
+            LIMIT 10
+            """, nativeQuery = true)
+    List<Alert> findSimilarAlerts(
+            @Param("alertId") Long alertId,
+            @Param("categoryId") Long categoryId,
+            @Param("lat") double lat,
+            @Param("lng") double lng,
+            @Param("radiusMeters") double radiusMeters);
+
     Long countByStatus(AlertStatusEnum status);
 
     Long countByUserId(Long userId);

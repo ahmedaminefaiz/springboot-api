@@ -25,6 +25,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -78,6 +81,14 @@ public class AlertServiceImpl implements AlertService {
         log.info("Fetching all alerts with pagination");
 
         return alertRepository.findAll(pageable)
+                .map(alertMapper::entityToAlertResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<AlertResponseDTO> getUnqualifiedAlerts(Pageable pageable) {
+        log.info("Fetching unqualified alerts (problem IS NULL)");
+        return alertRepository.findByProblemIsNull(pageable)
                 .map(alertMapper::entityToAlertResponse);
     }
 
@@ -213,6 +224,21 @@ public class AlertServiceImpl implements AlertService {
             throw new InvalidAlertException("La vidéo n'a pas été trouvée dans l'alerte");
         }
         return alertMapper.entityToAlertResponse(alertRepository.save(alert));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AlertResponseDTO> getSimilarAlerts(Long alertId, double radiusMeters) {
+        log.info("Finding similar alerts for alert {} within {}m", alertId, radiusMeters);
+        Alert alert = alertRepository.findById(alertId)
+                .orElseThrow(() -> new AlertNotFoundException(alertId));
+        return alertRepository.findSimilarAlerts(
+                alertId,
+                alert.getCategory().getId(),
+                alert.getLatitude().doubleValue(),
+                alert.getLongitude().doubleValue(),
+                radiusMeters
+        ).stream().map(alertMapper::entityToAlertResponse).collect(Collectors.toList());
     }
 
     // ========== Search & Filter ==========
