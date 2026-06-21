@@ -466,22 +466,46 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public void notifyAlertCreators(Long problemId, String newStatus) {
-        log.info("Notifying alert creators for problem: {}", problemId);
+        log.info("Notifying for problem: {}", problemId);
 
         Problem problem = problemRepository.findById(problemId)
                 .orElseThrow(() -> new ProblemNotFoundException(problemId));
 
+        // Notify assigned agent
+        User agent = problem.getAssignedTo();
+        if (agent != null) {
+            try {
+                ProblemStatusEnum problemStatus = ProblemStatusEnum.valueOf(newStatus);
+                if (problemStatus == ProblemStatusEnum.NEW) {
+                    notificationService.notifyAgentProblemAssigned(agent, problem.getTitle(), problem.getId());
+                } else {
+                    notificationService.notifyAgentProblemStatusChange(agent, problem.getTitle(), problemStatus, problem.getId());
+                }
+            } catch (IllegalArgumentException e) {
+                log.warn("Statut inconnu pour la notification agent: {}", newStatus);
+            }
+        } else {
+            log.warn("Problem {} has no assigned agent, skipping agent notification", problemId);
+        }
+
+        // Notify alert creators (citoyens)
+        AlertStatusEnum alertStatus;
+        try {
+            alertStatus = AlertStatusEnum.valueOf(newStatus);
+        } catch (IllegalArgumentException e) {
+            log.warn("Statut inconnu pour la notification citoyen: {}", newStatus);
+            return;
+        }
         for (Alert alert : problem.getAlerts()) {
             try {
-                AlertStatusEnum statusEnum = AlertStatusEnum.valueOf(newStatus);
                 notificationService.notifyAlertStatusChange(
                         alert.getUser(),
                         alert.getTitle(),
-                        statusEnum,
+                        alertStatus,
                         alert.getId()
                 );
-            } catch (IllegalArgumentException e) {
-                log.warn("Statut inconnu pour la notification: {}", newStatus);
+            } catch (Exception e) {
+                log.warn("Échec de la notification pour l'alerte {}: {}", alert.getId(), e.getMessage());
             }
         }
     }
