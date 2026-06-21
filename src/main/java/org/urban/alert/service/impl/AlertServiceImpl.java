@@ -20,6 +20,7 @@ import org.urban.alert.repository.ProblemTypeRepository;
 import org.urban.alert.repository.AlertRepository;
 import org.urban.alert.repository.UserRepository;
 import org.urban.alert.service.AlertService;
+import org.urban.alert.service.CloudinaryService;
 import org.urban.alert.service.mapper.AlertMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,6 +36,7 @@ public class AlertServiceImpl implements AlertService {
     private final UserRepository userRepository;
     private final ProblemTypeRepository problemTypeRepository;
     private final AlertMapper alertMapper;
+    private final CloudinaryService cloudinaryService;
 
     // ========== CRUD Operations ==========
 
@@ -201,7 +203,9 @@ public class AlertServiceImpl implements AlertService {
         if (!alert.getImages().remove(imageUrl)) {
             throw new InvalidAlertException("L'image n'a pas été trouvée dans l'alerte");
         }
-        return alertMapper.entityToAlertResponse(alertRepository.save(alert));
+        AlertResponseDTO response = alertMapper.entityToAlertResponse(alertRepository.save(alert));
+        cloudinaryService.deleteResource(imageUrl, "image");
+        return response;
     }
 
     @Override
@@ -212,7 +216,9 @@ public class AlertServiceImpl implements AlertService {
         if (!alert.getVideos().remove(videoUrl)) {
             throw new InvalidAlertException("La vidéo n'a pas été trouvée dans l'alerte");
         }
-        return alertMapper.entityToAlertResponse(alertRepository.save(alert));
+        AlertResponseDTO response = alertMapper.entityToAlertResponse(alertRepository.save(alert));
+        cloudinaryService.deleteResource(videoUrl, "video");
+        return response;
     }
 
     // ========== Search & Filter ==========
