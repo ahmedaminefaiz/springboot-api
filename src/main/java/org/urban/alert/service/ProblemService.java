@@ -120,6 +120,11 @@ public interface ProblemService {
      */
     void verifyCanModifyProblem(Long problemId, Long userId);
 
+    /**
+     * Récupère les problèmes contenant au moins une alerte créée par l'utilisateur connecté
+     */
+    Page<ProblemResponseDTO> getProblemsRelatedToMyAlerts(Long userId, Pageable pageable);
+
     // ========== Statistics ==========
 
     /**

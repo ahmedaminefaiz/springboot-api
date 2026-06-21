@@ -1,5 +1,6 @@
 package org.urban.alert.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -52,6 +53,7 @@ public class SecurityConfig {
                         .requestMatchers("/v1/auth/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**",
                                 "/swagger-ui.html").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/v1/user-management/**").hasAnyRole("SUPER_AGENT", "ADMIN")
                         .anyRequest().authenticated()
                 )

@@ -16,6 +16,4 @@ public class AddMediaRequestDTO {
     @NotBlank(message = "L'URL du média est requise")
     @Size(max = 2048, message = "L'URL ne peut pas dépasser 2048 caractères")
     private String mediaUrl;
-
-    private String description;
 }

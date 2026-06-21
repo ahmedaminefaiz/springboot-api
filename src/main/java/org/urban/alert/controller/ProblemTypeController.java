@@ -45,8 +45,9 @@ public class ProblemTypeController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @Audit
-    @PreAuthorize("hasRole('CITOYEN')")
+    @PreAuthorize("hasAnyRole('CITOYEN','ADMIN')")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+
     public ResponseEntity<?> getById(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(problemTypeService.getById(id));
@@ -62,8 +63,9 @@ public class ProblemTypeController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @Audit
-    @PreAuthorize("hasRole('ADMIN')")
+
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> create(@Valid @RequestBody CreateProblemTypeRequestDTO dto) {
         try {
             ProblemTypeResponseDTO response = problemTypeService.create(dto);
@@ -82,6 +84,7 @@ public class ProblemTypeController {
     })
     @Audit
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody UpdateProblemTypeRequestDTO dto) {
         try {
             return ResponseEntity.ok(problemTypeService.update(id, dto));
@@ -101,6 +104,7 @@ public class ProblemTypeController {
     })
     @Audit
     @DeleteMapping(value = "/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
             problemTypeService.delete(id);

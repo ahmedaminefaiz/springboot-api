@@ -146,6 +146,30 @@ public class ProblemController {
     }
 
     /**
+     * Récupère les problèmes liés aux alertes du citoyen connecté
+     */
+    @Operation(summary = "Get problems related to my alerts")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Problems retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    @GetMapping(value = "/user/my-alert-problems", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getProblemsRelatedToMyAlerts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            log.info("GET /v1/problems/user/my-alert-problems - Fetching problems related to my alerts");
+            Long userId = getCurrentUserId();
+            Pageable pageable = PageRequest.of(page, size);
+            Page<ProblemResponseDTO> response = problemService.getProblemsRelatedToMyAlerts(userId, pageable);
+            return ResponseEntity.ok(response);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(createErrorResponse("Utilisateur non trouvé", e.getMessage()));
+        }
+    }
+
+    /**
      * Récupère les problèmes assignés à moi (pour AGENT)
      */
     @Operation(summary = "Get problems assigned to me")
