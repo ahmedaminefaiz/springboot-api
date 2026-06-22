@@ -31,6 +31,13 @@ public class NotificationServiceImpl implements NotificationService {
     private final WhatsAppService whatsAppService;
 
     @Override
+    public void notifyAlertReceived(User user, String alertTitle, Long alertId) {
+        String message = String.format(
+                "Votre alerte '%s' a bien été reçue et sera traitée dans les meilleurs délais.", alertTitle);
+        pushNotification(user, message, NotificationTypeEnum.ALERT_RECEIVED, alertId);
+    }
+
+    @Override
     public void notifyAlertStatusChange(User user, String alertTitle, AlertStatusEnum newStatus, Long alertId) {
         String message = String.format("Votre alerte '%s' est %s", alertTitle, newStatus.getDisplayName());
         pushNotification(user, message, NotificationTypeEnum.ALERT_STATUS_CHANGE, alertId);
