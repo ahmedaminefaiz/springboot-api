@@ -18,6 +18,7 @@ import org.urban.alert.exception.alert.InvalidAlertException;
 import org.urban.alert.exception.alert.AlertNotFoundException;
 import org.urban.alert.repository.ProblemTypeRepository;
 import org.urban.alert.repository.AlertRepository;
+import org.urban.alert.service.CloudinaryService;
 import org.urban.alert.repository.UserRepository;
 import org.urban.alert.service.AlertService;
 import org.urban.alert.service.NotificationService;
@@ -40,6 +41,7 @@ public class AlertServiceImpl implements AlertService {
     private final ProblemTypeRepository problemTypeRepository;
     private final AlertMapper alertMapper;
     private final NotificationService notificationService;
+    private final CloudinaryService cloudinaryService;
 
 
     // ========== CRUD Operations ==========
