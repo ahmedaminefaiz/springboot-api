@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.urban.alert.dto.criticality.CriticalityResponseDTO;
 import org.urban.alert.entity.enums.ProblemStatusEnum;
 
 import java.time.LocalDateTime;
@@ -24,8 +25,8 @@ public class ProblemResponseDTO {
     private LocalDateTime resolvedAt;
 
     // Relations
-    private UserSummaryDTO createdBy; // SuperAgent qui a créé
-    private UserSummaryDTO assignedTo; // Agent assigné
+    private CriticalityResponseDTO criticality;
+    private UserSummaryDTO createdBy;
     private List<AlertSummaryDTO> alerts; // Alertes liées
     private List<ProblemStatusHistoryDTO> statusHistory; // Historique des statuts
 }

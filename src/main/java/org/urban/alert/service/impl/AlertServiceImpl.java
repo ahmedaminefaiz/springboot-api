@@ -20,11 +20,14 @@ import org.urban.alert.repository.ProblemTypeRepository;
 import org.urban.alert.repository.AlertRepository;
 import org.urban.alert.repository.UserRepository;
 import org.urban.alert.service.AlertService;
-import org.urban.alert.service.CloudinaryService;
+import org.urban.alert.service.NotificationService;
 import org.urban.alert.service.mapper.AlertMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -36,7 +39,8 @@ public class AlertServiceImpl implements AlertService {
     private final UserRepository userRepository;
     private final ProblemTypeRepository problemTypeRepository;
     private final AlertMapper alertMapper;
-    private final CloudinaryService cloudinaryService;
+    private final NotificationService notificationService;
+
 
     // ========== CRUD Operations ==========
 
@@ -60,6 +64,8 @@ public class AlertServiceImpl implements AlertService {
         Alert savedAlert = alertRepository.save(alert);
         log.info("Alert created with ID: {}", savedAlert.getId());
 
+        notificationService.notifyAlertReceived(user, savedAlert.getTitle(), savedAlert.getId());
+
         return alertMapper.entityToAlertResponse(savedAlert);
     }
 
@@ -80,6 +86,14 @@ public class AlertServiceImpl implements AlertService {
         log.info("Fetching all alerts with pagination");
 
         return alertRepository.findAll(pageable)
+                .map(alertMapper::entityToAlertResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<AlertResponseDTO> getUnqualifiedAlerts(Pageable pageable) {
+        log.info("Fetching unqualified alerts (problem IS NULL)");
+        return alertRepository.findByProblemIsNull(pageable)
                 .map(alertMapper::entityToAlertResponse);
     }
 
@@ -219,6 +233,21 @@ public class AlertServiceImpl implements AlertService {
         AlertResponseDTO response = alertMapper.entityToAlertResponse(alertRepository.save(alert));
         cloudinaryService.deleteResource(videoUrl, "video");
         return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AlertResponseDTO> getSimilarAlerts(Long alertId, double radiusMeters) {
+        log.info("Finding similar alerts for alert {} within {}m", alertId, radiusMeters);
+        Alert alert = alertRepository.findById(alertId)
+                .orElseThrow(() -> new AlertNotFoundException(alertId));
+        return alertRepository.findSimilarAlerts(
+                alertId,
+                alert.getCategory().getId(),
+                alert.getLatitude().doubleValue(),
+                alert.getLongitude().doubleValue(),
+                radiusMeters
+        ).stream().map(alertMapper::entityToAlertResponse).collect(Collectors.toList());
     }
 
     // ========== Search & Filter ==========

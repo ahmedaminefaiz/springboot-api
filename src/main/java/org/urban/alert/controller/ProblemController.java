@@ -108,7 +108,9 @@ public class ProblemController {
             @ApiResponse(responseCode = "200", description = "Problems retrieved successfully"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasAnyRole('AGENT', 'SUPER_AGENT', 'ADMIN')")
+
+    @PreAuthorize("isAuthenticated()")
+
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAllProblems(
             @RequestParam(defaultValue = "0") int page,
@@ -176,32 +178,7 @@ public class ProblemController {
     }
 
     /**
-     * Récupère les problèmes assignés à moi (pour AGENT)
-     */
-    @Operation(summary = "Get problems assigned to me")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Problems retrieved successfully"),
-            @ApiResponse(responseCode = "404", description = "User not found")
-    })
-    @PreAuthorize("hasRole('AGENT')")
-    @GetMapping(value = "/assigned-to-me", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getAssignedProblems(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        try {
-            log.info("GET /v1/problems/assigned-to-me - Fetching assigned problems");
-            Long userId = getCurrentUserId();
-            Pageable pageable = PageRequest.of(page, size);
-            Page<ProblemResponseDTO> response = problemService.getProblemsAssignedTo(userId, pageable);
-            return ResponseEntity.ok(response);
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(createErrorResponse("Utilisateur non trouvé", e.getMessage()));
-        }
-    }
-
-    /**
-     * Met à jour un problème (ajouter/retirer des alertes, changer l'agent assigné)
+     * Met à jour un problème (ajouter/retirer des alertes)
      */
     @Operation(summary = "Update a problem (add/remove alerts, change assigned agent)")
     @ApiResponses(value = {
@@ -211,7 +188,9 @@ public class ProblemController {
             @ApiResponse(responseCode = "404", description = "Problem not found"),
             @ApiResponse(responseCode = "409", description = "Problem cannot be modified")
     })
-    @PreAuthorize("hasRole('SUPER_AGENT')")
+
+    @PreAuthorize("hasAnyRole('SUPER_AGENT')")
+
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateProblem(
             @PathVariable Long id,
@@ -336,7 +315,9 @@ public class ProblemController {
             @ApiResponse(responseCode = "403", description = "Permission denied"),
             @ApiResponse(responseCode = "404", description = "Problem not found")
     })
-    @PreAuthorize("hasAnyRole('AGENT', 'SUPER_AGENT')")
+
+    @PreAuthorize("hasAnyRole('SUPER_AGENT', 'AGENT')")
+
     @PatchMapping(value = "/{id}/status", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> changeStatus(
             @PathVariable Long id,
@@ -352,6 +333,13 @@ public class ProblemController {
         } catch (InvalidProblemException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(createErrorResponse("Permission refusée", e.getMessage()));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(createErrorResponse("Utilisateur non trouvé", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error changing status for problem {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Erreur lors du changement de statut", e.getMessage()));
         }
     }
 
@@ -384,7 +372,8 @@ public class ProblemController {
             @ApiResponse(responseCode = "200", description = "History retrieved successfully"),
             @ApiResponse(responseCode = "404", description = "Problem not found")
     })
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('AGENT', 'SUPER_AGENT', 'ADMIN')")
+
     @GetMapping(value = "/{id}/status-history", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getStatusHistory(
             @PathVariable Long id,
@@ -437,7 +426,8 @@ public class ProblemController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Count retrieved successfully")
     })
-    @PreAuthorize("hasAnyRole('AGENT', 'SUPER_AGENT', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_AGENT', 'ADMIN')")
+
     @GetMapping(value = "/stats/count-by-status", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> countByStatus(@RequestParam ProblemStatusEnum status) {
         try {
@@ -472,26 +462,6 @@ public class ProblemController {
         }
     }
 
-    /**
-     * Compte les problèmes assignés à moi
-     */
-    @Operation(summary = "Count problems assigned to me")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Count retrieved successfully")
-    })
-    @PreAuthorize("hasRole('AGENT')")
-    @GetMapping(value = "/stats/assigned-count", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> countAssignedProblems() {
-        try {
-            log.info("GET /v1/problems/stats/assigned-count");
-            Long userId = getCurrentUserId();
-            Long count = problemService.countProblemsAssignedTo(userId);
-            return ResponseEntity.ok(Map.of("userId", userId, "count", count));
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(createErrorResponse("Utilisateur non trouvé", e.getMessage()));
-        }
-    }
 
     // ========== Helper Methods ==========
 

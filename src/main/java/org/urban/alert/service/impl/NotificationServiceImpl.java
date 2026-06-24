@@ -12,6 +12,7 @@ import org.urban.alert.entity.Notification;
 import org.urban.alert.entity.User;
 import org.urban.alert.entity.enums.AlertStatusEnum;
 import org.urban.alert.entity.enums.NotificationTypeEnum;
+import org.urban.alert.entity.enums.ProblemStatusEnum;
 import org.urban.alert.exception.UserNotFoundException;
 import org.urban.alert.repository.NotificationRepository;
 import org.urban.alert.service.EmailService;
@@ -30,44 +31,49 @@ public class NotificationServiceImpl implements NotificationService {
     private final WhatsAppService whatsAppService;
 
     @Override
+    public void notifyAlertReceived(User user, String alertTitle, Long alertId) {
+        String message = String.format(
+                "Votre alerte '%s' a bien été reçue et sera traitée dans les meilleurs délais.", alertTitle);
+        pushNotification(user, message, NotificationTypeEnum.ALERT_RECEIVED, alertId);
+    }
+
+    @Override
     public void notifyAlertStatusChange(User user, String alertTitle, AlertStatusEnum newStatus, Long alertId) {
         String message = String.format("Votre alerte '%s' est %s", alertTitle, newStatus.getDisplayName());
+        pushNotification(user, message, NotificationTypeEnum.ALERT_STATUS_CHANGE, alertId);
+    }
 
+    @Override
+    public void notifyAgentProblemAssigned(User agent, String problemTitle, Long problemId) {
+        String message = String.format("Un nouveau problème vous a été assigné : '%s'", problemTitle);
+        pushNotification(agent, message, NotificationTypeEnum.PROBLEM_ASSIGNED, problemId);
+    }
+
+    @Override
+    public void notifyAgentProblemStatusChange(User agent, String problemTitle, ProblemStatusEnum newStatus, Long problemId) {
+        String message = String.format("Le statut du problème '%s' est maintenant : %s", problemTitle, newStatus.name());
+        pushNotification(agent, message, NotificationTypeEnum.PROBLEM_STATUS_CHANGE, problemId);
+    }
+
+    private void pushNotification(User user, String message, NotificationTypeEnum type, Long referenceId) {
         Notification notification = Notification.builder()
                 .user(user)
                 .message(message)
-                .type(NotificationTypeEnum.ALERT_STATUS_CHANGE)
-                .referenceId(alertId)
+                .type(type)
+                .referenceId(referenceId)
                 .build();
 
         NotificationResponseDTO dto = toDTO(notificationRepository.save(notification));
 
-        // Push WebSocket — sans effet si l'utilisateur est hors ligne
+        // Resolve phone before the try-catch to avoid LazyInitializationException inside the catch block
+        String phone = user.getPhone();
         try {
-            messagingTemplate.convertAndSendToUser(user.getPhone(), "/queue/notifications", dto);
+            messagingTemplate.convertAndSendToUser(phone, "/queue/notifications", dto);
         } catch (Exception e) {
-            log.warn("WebSocket push failed for user {}: {}", user.getPhone(), e.getMessage());
+            log.warn("WebSocket push failed for user {}: {}", phone, e.getMessage());
         }
 
-        // TODO: activer l'email quand la config SMTP est prête
-//        try {
-//            emailService.send(
-//                    user.getEmail(),
-//                    "Mise à jour de votre alerte - UrbanAlert",
-//                    String.format("Bonjour %s,\n\n%s\n\nL'équipe UrbanAlert", user.getPrenom(), message)
-//            );
-//        } catch (Exception e) {
-//            log.warn("Email failed for user {}: {}", user.getEmail(), e.getMessage());
-//        }
-
-        // TODO: activer WhatsApp quand les credentials sont configurés
-//        try {
-//            whatsAppService.sendNotification(user.getPhone(), message);
-//        } catch (Exception e) {
-//            log.warn("WhatsApp failed for user {}: {}", user.getPhone(), e.getMessage());
-//        }
-
-        log.info("Notification envoyée à {} : {}", user.getPhone(), message);
+        log.info("Notification envoyée à {} : {}", phone, message);
     }
 
     @Override
@@ -100,6 +106,12 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(readOnly = true)
     public Long countUnread(Long userId) {
         return notificationRepository.countByUserIdAndIsReadFalse(userId);
+    }
+
+    @Override
+    public void notifyAgentInterventionAssigned(User agent, String problemTitle, Long interventionId) {
+        String message = String.format("Une nouvelle intervention vous a été assignée sur le problème : '%s'", problemTitle);
+        pushNotification(agent, message, NotificationTypeEnum.INTERVENTION_ASSIGNED, interventionId);
     }
 
     private NotificationResponseDTO toDTO(Notification n) {

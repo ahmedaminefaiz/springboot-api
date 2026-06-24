@@ -16,4 +16,8 @@ public interface UserManagementService {
     void approveSuperAgent(Long superAgentId);
 
     void rejectSuperAgent(Long superAgentId);
+
+    List<UserSummaryResponseDTO> getActiveAgents();
+
+    List<UserSummaryResponseDTO> getMyAgents();
 }

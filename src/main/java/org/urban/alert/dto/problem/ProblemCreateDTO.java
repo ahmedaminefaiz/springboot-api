@@ -7,8 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
 
-// ========== CREATE REQUEST ==========
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,11 +17,11 @@ public class ProblemCreateDTO {
 
     private String description;
 
-    @NotNull(message = "L'ID de l'agent assigné est requis")
-    private Long assignedToId; // ID de l'Agent
+    @NotNull(message = "La criticité est obligatoire")
+    private Long criticalityId;
 
     @NotNull(message = "Au moins une alerte doit être spécifiée")
-    private List<Long> alertIds; // IDs des alertes à assigner
+    private List<Long> alertIds;
 }
 
 // ========== RESPONSE ==========

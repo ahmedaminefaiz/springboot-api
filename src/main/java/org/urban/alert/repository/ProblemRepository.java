@@ -18,9 +18,6 @@ public interface ProblemRepository extends JpaRepository<Problem, Long> {
     // Trouver les problèmes créés par un SuperAgent
     Page<Problem> findByUserId(Long userId, Pageable pageable);
 
-    // Trouver les problèmes assignés à un Agent
-    Page<Problem> findByAssignedToId(Long assignedToId, Pageable pageable);
-
     // Trouver les problèmes par statut
     Page<Problem> findByStatus(ProblemStatusEnum status, Pageable pageable);
 
@@ -28,16 +25,8 @@ public interface ProblemRepository extends JpaRepository<Problem, Long> {
     @Query("SELECT p FROM Problem p WHERE p.status != 'RESOLVED' AND p.status != 'REJECTED'")
     List<Problem> findActiveProblems();
 
-    // Trouver les problèmes d'un agent par statut
-    @Query("SELECT p FROM Problem p WHERE p.assignedTo.id = :agentId AND p.status = :status")
-    List<Problem> findByAgentAndStatus(@Param("agentId") Long agentId, 
-                                        @Param("status") ProblemStatusEnum status);
-
     // Compter les problèmes par statut
     Long countByStatus(ProblemStatusEnum status);
-
-    // Compter les problèmes assignés à un agent
-    Long countByAssignedToId(Long assignedToId);
 
     // Trouver les problèmes créés par un utilisateur
     Long countByUserId(Long userId);
@@ -45,4 +34,6 @@ public interface ProblemRepository extends JpaRepository<Problem, Long> {
     // Trouver les problèmes contenant au moins une alerte créée par un utilisateur donné
     @Query("SELECT DISTINCT p FROM Problem p JOIN p.alerts a WHERE a.user.id = :userId")
     Page<Problem> findByAlertCreatorId(@Param("userId") Long userId, Pageable pageable);
+
+    boolean existsByCriticalityId(Long criticalityId);
 }

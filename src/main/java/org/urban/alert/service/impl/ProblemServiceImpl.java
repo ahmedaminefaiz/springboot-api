@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.urban.alert.dto.problem.*;
 import org.urban.alert.entity.*;
 import org.urban.alert.entity.enums.*;
+import org.urban.alert.exception.CriticalityNotFoundException;
 import org.urban.alert.exception.UserNotFoundException;
 import org.urban.alert.exception.alert.AlertNotFoundException;
 import org.urban.alert.exception.problem.*;
@@ -33,6 +34,7 @@ public class ProblemServiceImpl implements ProblemService {
     private final AlertRepository alertRepository;
     private final UserRepository userRepository;
     private final ProblemStatusHistoryRepository historyRepository;
+    private final CriticalityRepository criticalityRepository;
     private final ProblemMapper problemMapper;
     private final NotificationService notificationService;
 
@@ -48,24 +50,19 @@ public class ProblemServiceImpl implements ProblemService {
 
         verifySuperAgentRole(createdByUserId);
 
-        //  Vérifier que assigned_to est un AGENT
-        User assignedAgent = userRepository.findById(request.getAssignedToId())
-                .orElseThrow(() -> new UserNotFoundException(request.getAssignedToId()));
-
-        verifyAgentRole(request.getAssignedToId());
-
-        //  Vérifier qu'au moins une alerte est spécifiée
         if (request.getAlertIds() == null || request.getAlertIds().isEmpty()) {
             throw new NoAlertsAssignedException();
         }
 
-        // Créer le problème
+        Criticality criticality = criticalityRepository.findById(request.getCriticalityId())
+                .orElseThrow(() -> new CriticalityNotFoundException(request.getCriticalityId()));
+
         Problem problem = Problem.builder()
                 .user(creator)
-                .assignedTo(assignedAgent)
                 .status(ProblemStatusEnum.NEW)
                 .title(request.getTitle())
                 .description(request.getDescription())
+                .criticality(criticality)
                 .build();
 
         Problem savedProblem = problemRepository.save(problem);
@@ -127,19 +124,6 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ProblemResponseDTO> getProblemsAssignedTo(Long agentId, Pageable pageable) {
-        log.info("Fetching problems assigned to agent: {}", agentId);
-
-        if (!userRepository.existsById(agentId)) {
-            throw new UserNotFoundException(agentId);
-        }
-
-        return problemRepository.findByAssignedToId(agentId, pageable)
-                .map(problemMapper::entityToProblemResponse);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public Page<ProblemResponseDTO> getProblemsByStatus(ProblemStatusEnum status, Pageable pageable) {
         log.info("Fetching problems by status: {}", status);
 
@@ -168,14 +152,10 @@ public class ProblemServiceImpl implements ProblemService {
         if (request.getDescription() != null) {
             problem.setDescription(request.getDescription());
         }
-
-        // Changer l'agent assigné si demandé
-        if (request.getAssignedToId() != null && 
-            !request.getAssignedToId().equals(problem.getAssignedTo().getId())) {
-            User newAgent = userRepository.findById(request.getAssignedToId())
-                    .orElseThrow(() -> new UserNotFoundException(request.getAssignedToId()));
-            verifyAgentRole(request.getAssignedToId());
-            problem.setAssignedTo(newAgent);
+        if (request.getCriticalityId() != null) {
+            Criticality criticality = criticalityRepository.findById(request.getCriticalityId())
+                    .orElseThrow(() -> new CriticalityNotFoundException(request.getCriticalityId()));
+            problem.setCriticality(criticality);
         }
 
         // Ajouter des alertes si demandé
@@ -341,8 +321,7 @@ public class ProblemServiceImpl implements ProblemService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        if (!problem.getUser().getId().equals(userId) && 
-            !problem.getAssignedTo().getId().equals(userId)) {
+        if (!problem.getUser().getId().equals(userId)) {
             throw new InvalidProblemException("Vous n'avez pas la permission de changer le statut de ce problème");
         }
 
@@ -436,8 +415,7 @@ public class ProblemServiceImpl implements ProblemService {
         Problem problem = problemRepository.findById(problemId)
                 .orElseThrow(() -> new ProblemNotFoundException(problemId));
 
-        if (!problem.getUser().getId().equals(userId) && 
-            !problem.getAssignedTo().getId().equals(userId)) {
+        if (!problem.getUser().getId().equals(userId)) {
             throw new InvalidProblemException("Vous n'avez pas la permission de modifier ce problème");
         }
     }
@@ -452,12 +430,6 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     @Transactional(readOnly = true)
-    public Long countProblemsAssignedTo(Long agentId) {
-        return problemRepository.countByAssignedToId(agentId);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public Long countProblemsCreatedBy(Long userId) {
         return problemRepository.countByUserId(userId);
     }
@@ -466,22 +438,29 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public void notifyAlertCreators(Long problemId, String newStatus) {
-        log.info("Notifying alert creators for problem: {}", problemId);
+        log.info("Notifying for problem: {}", problemId);
 
         Problem problem = problemRepository.findById(problemId)
                 .orElseThrow(() -> new ProblemNotFoundException(problemId));
 
+        // Notify alert creators (citoyens)
+        AlertStatusEnum alertStatus;
+        try {
+            alertStatus = AlertStatusEnum.valueOf(newStatus);
+        } catch (IllegalArgumentException e) {
+            log.warn("Statut inconnu pour la notification citoyen: {}", newStatus);
+            return;
+        }
         for (Alert alert : problem.getAlerts()) {
             try {
-                AlertStatusEnum statusEnum = AlertStatusEnum.valueOf(newStatus);
                 notificationService.notifyAlertStatusChange(
                         alert.getUser(),
                         alert.getTitle(),
-                        statusEnum,
+                        alertStatus,
                         alert.getId()
                 );
-            } catch (IllegalArgumentException e) {
-                log.warn("Statut inconnu pour la notification: {}", newStatus);
+            } catch (Exception e) {
+                log.warn("Échec de la notification pour l'alerte {}: {}", alert.getId(), e.getMessage());
             }
         }
     }

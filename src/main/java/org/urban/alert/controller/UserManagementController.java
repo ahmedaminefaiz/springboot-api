@@ -24,6 +24,30 @@ public class UserManagementController {
 
     private final UserManagementService userManagementService;
 
+    @Operation(summary = "Get all active agents")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List returned successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
+    @Audit
+    @GetMapping(value = "/agents", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('SUPER_AGENT')")
+    public ResponseEntity<List<UserSummaryResponseDTO>> getActiveAgents() {
+        return ResponseEntity.ok(userManagementService.getActiveAgents());
+    }
+
+    @Operation(summary = "Get agents approved by the current super-agent")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List returned successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
+    @Audit
+    @GetMapping(value = "/my-agents", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('SUPER_AGENT')")
+    public ResponseEntity<List<UserSummaryResponseDTO>> getMyAgents() {
+        return ResponseEntity.ok(userManagementService.getMyAgents());
+    }
+
     @Operation(summary = "Get all agents pending approval")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List returned successfully"),

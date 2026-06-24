@@ -36,11 +36,6 @@ public interface ProblemService {
     Page<ProblemResponseDTO> getProblemsCreatedBy(Long userId, Pageable pageable);
 
     /**
-     * Récupère les problèmes assignés à un Agent
-     */
-    Page<ProblemResponseDTO> getProblemsAssignedTo(Long agentId, Pageable pageable);
-
-    /**
      * Récupère les problèmes par statut
      */
     Page<ProblemResponseDTO> getProblemsByStatus(ProblemStatusEnum status, Pageable pageable);
@@ -131,11 +126,6 @@ public interface ProblemService {
      * Compte les problèmes par statut
      */
     Long countProblemsByStatus(ProblemStatusEnum status);
-
-    /**
-     * Compte les problèmes assignés à un agent
-     */
-    Long countProblemsAssignedTo(Long agentId);
 
     /**
      * Compte les problèmes créés par un utilisateur
