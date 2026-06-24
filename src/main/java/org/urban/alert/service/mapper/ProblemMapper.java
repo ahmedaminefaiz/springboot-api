@@ -18,7 +18,6 @@ public interface ProblemMapper {
     // ========== Entity to Response DTO ==========
 
     @Mapping(source = "user", target = "createdBy")
-    @Mapping(source = "assignedTo", target = "assignedTo")
     @Mapping(source = "alerts", target = "alerts")
     @Mapping(source = "statusHistory", target = "statusHistory")
     ProblemResponseDTO entityToProblemResponse(Problem problem);

@@ -17,8 +17,6 @@ public class ProblemUpdateDTO {
 
     private String description;
 
-    private Long assignedToId; // Peut changer l'agent assigné
-
     private List<Long> addAlertIds; // Ajouter des alertes
     private List<Long> removeAlertIds; // Retirer des alertes
 }

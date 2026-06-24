@@ -24,8 +24,7 @@ public class ProblemResponseDTO {
     private LocalDateTime resolvedAt;
 
     // Relations
-    private UserSummaryDTO createdBy; // SuperAgent qui a créé
-    private UserSummaryDTO assignedTo; // Agent assigné
+    private UserSummaryDTO createdBy;
     private List<AlertSummaryDTO> alerts; // Alertes liées
     private List<ProblemStatusHistoryDTO> statusHistory; // Historique des statuts
 }
