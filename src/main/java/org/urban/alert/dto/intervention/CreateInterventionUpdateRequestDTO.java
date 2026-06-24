@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.urban.alert.entity.enums.InterventionStatusEnum;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -23,6 +24,9 @@ public class CreateInterventionUpdateRequestDTO {
 
     @NotNull(message = "Le statut est requis")
     private InterventionStatusEnum status;
+
+    @NotNull(message = "La date de l'action est obligatoire")
+    private LocalDateTime statusDate;
 
     @Size(max = 3, message = "Maximum 3 photos")
     private List<String> photos;

@@ -163,6 +163,7 @@ public class InterventionServiceImpl implements InterventionService {
                 .intervention(intervention)
                 .rapport(request.getRapport())
                 .status(request.getStatus())
+                .statusDate(request.getStatusDate())
                 .photos(request.getPhotos() != null ? new ArrayList<>(request.getPhotos()) : new ArrayList<>())
                 .build();
 
@@ -171,7 +172,7 @@ public class InterventionServiceImpl implements InterventionService {
         intervention.setStatus(request.getStatus());
 
         if (intervention.getDuration() == null && DURATION_TRIGGER_STATUSES.contains(request.getStatus())) {
-            intervention.setDuration((int) ChronoUnit.MINUTES.between(intervention.getInterventionDate(), LocalDateTime.now()));
+            intervention.setDuration((int) ChronoUnit.MINUTES.between(intervention.getInterventionDate(), request.getStatusDate()));
         }
 
         Intervention updated = interventionRepository.save(intervention);

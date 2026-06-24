@@ -1,0 +1,2 @@
+ALTER TABLE intervention_updates ADD COLUMN status_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE intervention_updates ALTER COLUMN status_date DROP DEFAULT;
