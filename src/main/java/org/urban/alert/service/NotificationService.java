@@ -22,4 +22,6 @@ public interface NotificationService {
     void markAllAsRead(Long userId);
 
     Long countUnread(Long userId);
+
+    void notifyAgentInterventionAssigned(User agent, String problemTitle, Long interventionId);
 }
