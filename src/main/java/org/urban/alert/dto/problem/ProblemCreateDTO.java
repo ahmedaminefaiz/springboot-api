@@ -17,6 +17,9 @@ public class ProblemCreateDTO {
 
     private String description;
 
+    @NotNull(message = "La criticité est obligatoire")
+    private Long criticalityId;
+
     @NotNull(message = "Au moins une alerte doit être spécifiée")
     private List<Long> alertIds;
 }

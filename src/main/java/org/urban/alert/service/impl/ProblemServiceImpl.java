@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.urban.alert.dto.problem.*;
 import org.urban.alert.entity.*;
 import org.urban.alert.entity.enums.*;
+import org.urban.alert.exception.CriticalityNotFoundException;
 import org.urban.alert.exception.UserNotFoundException;
 import org.urban.alert.exception.alert.AlertNotFoundException;
 import org.urban.alert.exception.problem.*;
@@ -33,6 +34,7 @@ public class ProblemServiceImpl implements ProblemService {
     private final AlertRepository alertRepository;
     private final UserRepository userRepository;
     private final ProblemStatusHistoryRepository historyRepository;
+    private final CriticalityRepository criticalityRepository;
     private final ProblemMapper problemMapper;
     private final NotificationService notificationService;
 
@@ -52,11 +54,15 @@ public class ProblemServiceImpl implements ProblemService {
             throw new NoAlertsAssignedException();
         }
 
+        Criticality criticality = criticalityRepository.findById(request.getCriticalityId())
+                .orElseThrow(() -> new CriticalityNotFoundException(request.getCriticalityId()));
+
         Problem problem = Problem.builder()
                 .user(creator)
                 .status(ProblemStatusEnum.NEW)
                 .title(request.getTitle())
                 .description(request.getDescription())
+                .criticality(criticality)
                 .build();
 
         Problem savedProblem = problemRepository.save(problem);
@@ -145,6 +151,11 @@ public class ProblemServiceImpl implements ProblemService {
         }
         if (request.getDescription() != null) {
             problem.setDescription(request.getDescription());
+        }
+        if (request.getCriticalityId() != null) {
+            Criticality criticality = criticalityRepository.findById(request.getCriticalityId())
+                    .orElseThrow(() -> new CriticalityNotFoundException(request.getCriticalityId()));
+            problem.setCriticality(criticality);
         }
 
         // Ajouter des alertes si demandé
