@@ -108,6 +108,12 @@ public class NotificationServiceImpl implements NotificationService {
         return notificationRepository.countByUserIdAndIsReadFalse(userId);
     }
 
+    @Override
+    public void notifyAgentInterventionAssigned(User agent, String problemTitle, Long interventionId) {
+        String message = String.format("Une nouvelle intervention vous a été assignée sur le problème : '%s'", problemTitle);
+        pushNotification(agent, message, NotificationTypeEnum.INTERVENTION_ASSIGNED, interventionId);
+    }
+
     private NotificationResponseDTO toDTO(Notification n) {
         return NotificationResponseDTO.builder()
                 .id(n.getId())

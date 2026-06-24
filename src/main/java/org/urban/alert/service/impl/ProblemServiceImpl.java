@@ -48,21 +48,12 @@ public class ProblemServiceImpl implements ProblemService {
 
         verifySuperAgentRole(createdByUserId);
 
-        //  Vérifier que assigned_to est un AGENT
-        User assignedAgent = userRepository.findById(request.getAssignedToId())
-                .orElseThrow(() -> new UserNotFoundException(request.getAssignedToId()));
-
-        verifyAgentRole(request.getAssignedToId());
-
-        //  Vérifier qu'au moins une alerte est spécifiée
         if (request.getAlertIds() == null || request.getAlertIds().isEmpty()) {
             throw new NoAlertsAssignedException();
         }
 
-        // Créer le problème
         Problem problem = Problem.builder()
                 .user(creator)
-                .assignedTo(assignedAgent)
                 .status(ProblemStatusEnum.NEW)
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -127,19 +118,6 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ProblemResponseDTO> getProblemsAssignedTo(Long agentId, Pageable pageable) {
-        log.info("Fetching problems assigned to agent: {}", agentId);
-
-        if (!userRepository.existsById(agentId)) {
-            throw new UserNotFoundException(agentId);
-        }
-
-        return problemRepository.findByAssignedToId(agentId, pageable)
-                .map(problemMapper::entityToProblemResponse);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public Page<ProblemResponseDTO> getProblemsByStatus(ProblemStatusEnum status, Pageable pageable) {
         log.info("Fetching problems by status: {}", status);
 
@@ -167,15 +145,6 @@ public class ProblemServiceImpl implements ProblemService {
         }
         if (request.getDescription() != null) {
             problem.setDescription(request.getDescription());
-        }
-
-        // Changer l'agent assigné si demandé
-        if (request.getAssignedToId() != null && 
-            !request.getAssignedToId().equals(problem.getAssignedTo().getId())) {
-            User newAgent = userRepository.findById(request.getAssignedToId())
-                    .orElseThrow(() -> new UserNotFoundException(request.getAssignedToId()));
-            verifyAgentRole(request.getAssignedToId());
-            problem.setAssignedTo(newAgent);
         }
 
         // Ajouter des alertes si demandé
@@ -341,8 +310,7 @@ public class ProblemServiceImpl implements ProblemService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        if (!problem.getUser().getId().equals(userId) && 
-            !problem.getAssignedTo().getId().equals(userId)) {
+        if (!problem.getUser().getId().equals(userId)) {
             throw new InvalidProblemException("Vous n'avez pas la permission de changer le statut de ce problème");
         }
 
@@ -436,8 +404,7 @@ public class ProblemServiceImpl implements ProblemService {
         Problem problem = problemRepository.findById(problemId)
                 .orElseThrow(() -> new ProblemNotFoundException(problemId));
 
-        if (!problem.getUser().getId().equals(userId) && 
-            !problem.getAssignedTo().getId().equals(userId)) {
+        if (!problem.getUser().getId().equals(userId)) {
             throw new InvalidProblemException("Vous n'avez pas la permission de modifier ce problème");
         }
     }
@@ -448,12 +415,6 @@ public class ProblemServiceImpl implements ProblemService {
     @Transactional(readOnly = true)
     public Long countProblemsByStatus(ProblemStatusEnum status) {
         return problemRepository.countByStatus(status);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Long countProblemsAssignedTo(Long agentId) {
-        return problemRepository.countByAssignedToId(agentId);
     }
 
     @Override
@@ -470,23 +431,6 @@ public class ProblemServiceImpl implements ProblemService {
 
         Problem problem = problemRepository.findById(problemId)
                 .orElseThrow(() -> new ProblemNotFoundException(problemId));
-
-        // Notify assigned agent
-        User agent = problem.getAssignedTo();
-        if (agent != null) {
-            try {
-                ProblemStatusEnum problemStatus = ProblemStatusEnum.valueOf(newStatus);
-                if (problemStatus == ProblemStatusEnum.NEW) {
-                    notificationService.notifyAgentProblemAssigned(agent, problem.getTitle(), problem.getId());
-                } else {
-                    notificationService.notifyAgentProblemStatusChange(agent, problem.getTitle(), problemStatus, problem.getId());
-                }
-            } catch (IllegalArgumentException e) {
-                log.warn("Statut inconnu pour la notification agent: {}", newStatus);
-            }
-        } else {
-            log.warn("Problem {} has no assigned agent, skipping agent notification", problemId);
-        }
 
         // Notify alert creators (citoyens)
         AlertStatusEnum alertStatus;

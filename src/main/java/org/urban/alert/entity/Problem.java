@@ -45,11 +45,6 @@ public class Problem {
     @JoinColumn(name = "user_id", nullable = false)
     private User user; // Doit être SUPER_AGENT
 
-    // ManyToOne: Un problème assigné à un Agent
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_to", nullable = false)
-    private User assignedTo; // Doit être AGENT
-
     // OneToMany: Un problème peut avoir plusieurs alertes (pas de cascade : ON DELETE SET NULL en base)
     @Builder.Default
     @OneToMany(mappedBy = "problem", fetch = FetchType.LAZY)
