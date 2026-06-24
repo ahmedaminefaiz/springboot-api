@@ -41,6 +41,7 @@ public class AlertServiceImpl implements AlertService {
     private final AlertMapper alertMapper;
     private final NotificationService notificationService;
 
+
     // ========== CRUD Operations ==========
 
     @Override
@@ -216,7 +217,9 @@ public class AlertServiceImpl implements AlertService {
         if (!alert.getImages().remove(imageUrl)) {
             throw new InvalidAlertException("L'image n'a pas été trouvée dans l'alerte");
         }
-        return alertMapper.entityToAlertResponse(alertRepository.save(alert));
+        AlertResponseDTO response = alertMapper.entityToAlertResponse(alertRepository.save(alert));
+        cloudinaryService.deleteResource(imageUrl, "image");
+        return response;
     }
 
     @Override
@@ -227,7 +230,9 @@ public class AlertServiceImpl implements AlertService {
         if (!alert.getVideos().remove(videoUrl)) {
             throw new InvalidAlertException("La vidéo n'a pas été trouvée dans l'alerte");
         }
-        return alertMapper.entityToAlertResponse(alertRepository.save(alert));
+        AlertResponseDTO response = alertMapper.entityToAlertResponse(alertRepository.save(alert));
+        cloudinaryService.deleteResource(videoUrl, "video");
+        return response;
     }
 
     @Override
