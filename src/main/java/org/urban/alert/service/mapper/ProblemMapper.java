@@ -1,7 +1,9 @@
 package org.urban.alert.service.mapper;
 
 import org.mapstruct.*;
+import org.urban.alert.dto.criticality.CriticalityResponseDTO;
 import org.urban.alert.dto.problem.*;
+import org.urban.alert.entity.Criticality;
 import org.urban.alert.entity.Problem;
 import org.urban.alert.entity.ProblemStatusHistory;
 import org.urban.alert.entity.Alert;
@@ -17,10 +19,13 @@ public interface ProblemMapper {
 
     // ========== Entity to Response DTO ==========
 
+    @Mapping(source = "criticality", target = "criticality")
     @Mapping(source = "user", target = "createdBy")
     @Mapping(source = "alerts", target = "alerts")
     @Mapping(source = "statusHistory", target = "statusHistory")
     ProblemResponseDTO entityToProblemResponse(Problem problem);
+
+    CriticalityResponseDTO criticalityToDTO(Criticality criticality);
 
     // ========== User to Summary ==========
 

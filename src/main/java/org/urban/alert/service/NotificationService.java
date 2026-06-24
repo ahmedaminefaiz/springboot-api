@@ -9,6 +9,8 @@ import org.urban.alert.entity.enums.ProblemStatusEnum;
 
 public interface NotificationService {
 
+    void notifyAlertReceived(User user, String alertTitle, Long alertId);
+
     void notifyAlertStatusChange(User user, String alertTitle, AlertStatusEnum newStatus, Long alertId);
 
     void notifyAgentProblemAssigned(User agent, String problemTitle, Long problemId);

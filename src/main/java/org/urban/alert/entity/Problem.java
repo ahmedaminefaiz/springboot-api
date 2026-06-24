@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.urban.alert.entity.enums.ProblemStatusEnum;
+import org.urban.alert.entity.Criticality;
 
 @Entity
 @Table(name = "problems")
@@ -39,6 +40,10 @@ public class Problem {
     private LocalDateTime resolvedAt;
 
     // ========== Relations ==========
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "criticality_id", nullable = false)
+    private Criticality criticality;
 
     // ManyToOne: Un problème créé par un SuperAgent (utilisateur)
     @ManyToOne(fetch = FetchType.LAZY)

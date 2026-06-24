@@ -20,6 +20,7 @@ import org.urban.alert.repository.ProblemTypeRepository;
 import org.urban.alert.repository.AlertRepository;
 import org.urban.alert.repository.UserRepository;
 import org.urban.alert.service.AlertService;
+import org.urban.alert.service.NotificationService;
 import org.urban.alert.service.mapper.AlertMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,6 +39,7 @@ public class AlertServiceImpl implements AlertService {
     private final UserRepository userRepository;
     private final ProblemTypeRepository problemTypeRepository;
     private final AlertMapper alertMapper;
+    private final NotificationService notificationService;
 
     // ========== CRUD Operations ==========
 
@@ -60,6 +62,8 @@ public class AlertServiceImpl implements AlertService {
 
         Alert savedAlert = alertRepository.save(alert);
         log.info("Alert created with ID: {}", savedAlert.getId());
+
+        notificationService.notifyAlertReceived(user, savedAlert.getTitle(), savedAlert.getId());
 
         return alertMapper.entityToAlertResponse(savedAlert);
     }

@@ -34,4 +34,6 @@ public interface ProblemRepository extends JpaRepository<Problem, Long> {
     // Trouver les problèmes contenant au moins une alerte créée par un utilisateur donné
     @Query("SELECT DISTINCT p FROM Problem p JOIN p.alerts a WHERE a.user.id = :userId")
     Page<Problem> findByAlertCreatorId(@Param("userId") Long userId, Pageable pageable);
+
+    boolean existsByCriticalityId(Long criticalityId);
 }
