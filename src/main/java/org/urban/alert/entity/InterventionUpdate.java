@@ -36,6 +36,9 @@ public class InterventionUpdate {
     @Column(name = "photo_url", length = 2048)
     private List<String> photos = new ArrayList<>();
 
+    @Column(name = "status_date", nullable = false)
+    private LocalDateTime statusDate;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

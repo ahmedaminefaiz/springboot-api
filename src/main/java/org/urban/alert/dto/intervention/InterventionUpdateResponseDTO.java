@@ -21,5 +21,6 @@ public class InterventionUpdateResponseDTO {
     private InterventionStatusEnum status;
     private String statusLabel;
     private List<String> photos;
+    private LocalDateTime statusDate;
     private LocalDateTime createdAt;
 }
