@@ -2,8 +2,10 @@ package org.urban.alert.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.urban.alert.config.CacheConfig;
 import org.urban.alert.dto.kpi.*;
 import org.urban.alert.entity.enums.InterventionStatusEnum;
 import org.urban.alert.repository.kpi.AlertKpiRepository;
@@ -41,6 +43,8 @@ public class KpiServiceImpl implements KpiService {
     );
 
     @Override
+    @Cacheable(value = CacheConfig.KPI_DASHBOARD_CACHE,
+               key = "#periodDays + '-' + #agentId + '-' + #problemTypeId + '-' + #criticalityId")
     public KpiDashboardDTO getDashboard(Integer periodDays, Long agentId, Long problemTypeId, Long criticalityId) {
         log.info("Building KPI dashboard — periodDays={} agentId={} problemTypeId={} criticalityId={}",
                 periodDays, agentId, problemTypeId, criticalityId);

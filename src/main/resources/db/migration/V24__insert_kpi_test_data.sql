@@ -5,6 +5,10 @@
 
 INSERT INTO users (nom, prenom, date_naissance, ville, email, password, phone, role, status, phone_verified)
 VALUES
+    ('Bennani', 'Sara', '1988-03-20', 'Casablanca', 'sara.superagent@urbanalert.ma',
+     '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+212600000003', 'SUPER_AGENT', 'ACTIVE', true),
+    ('Idrissi', 'Youssef', '1992-07-10', 'Casablanca', 'youssef.agent@urbanalert.ma',
+     '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+212600000004', 'AGENT', 'ACTIVE', true),
     ('Karimi', 'Amine', '1990-04-10', 'Casablanca', 'amine.karimi@urbanalert.ma',
      '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+212600000020', 'AGENT', 'ACTIVE', true),
     ('Soussi', 'Layla', '1993-08-22', 'Rabat', 'layla.soussi@urbanalert.ma',
