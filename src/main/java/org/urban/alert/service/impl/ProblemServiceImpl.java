@@ -231,6 +231,7 @@ public class ProblemServiceImpl implements ProblemService {
         // Assigner l'alerte au problème
         problem.addAlert(alert);
         alert.setProblem(problem);
+        alert.setQualifiedAt(LocalDateTime.now());
 
         // Changer le statut de l'alerte en IN_PROGRESS
         alert.setStatus(AlertStatusEnum.IN_PROGRESS);
@@ -287,7 +288,7 @@ public class ProblemServiceImpl implements ProblemService {
             alert.setProblem(problem);
             alert.setStatus(AlertStatusEnum.IN_PROGRESS);
 
-            alertRepository.save(alert); // Optionnel si @Transactional gère le dirty checking
+            alertRepository.save(alert);
         }
 
         // 3. Sauvegarder et mapper UNE SEULE FOIS à la fin

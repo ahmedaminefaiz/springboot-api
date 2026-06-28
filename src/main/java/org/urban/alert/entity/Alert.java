@@ -62,6 +62,9 @@ public class Alert {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "qualified_at")
+    private LocalDateTime qualifiedAt;
+
     // ========== Relations ==========
 
     // ManyToOne: Plusieurs alertes pour un utilisateur
