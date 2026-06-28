@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.urban.alert.dto.alert.AddMediaRequestDTO;
+import org.urban.alert.dto.alert.AlertSimilarityResponseDTO;
 import org.urban.alert.dto.alert.CreateAlertRequestDTO;
 import org.urban.alert.dto.alert.AlertResponseDTO;
 import org.urban.alert.dto.alert.UpdateAlertRequestDTO;
@@ -23,6 +24,7 @@ import org.urban.alert.exception.alert.InvalidAlertException;
 import org.urban.alert.exception.alert.AlertNotFoundException;
 import org.urban.alert.exception.UserNotFoundException;
 import org.urban.alert.service.AlertService;
+import org.urban.alert.service.AlertSimilarityService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +37,7 @@ import java.util.Map;
 public class AlertController {
 
     private final AlertService alertService;
+    private final AlertSimilarityService alertSimilarityService;
 
     // ========== CRUD Endpoints ==========
 
@@ -541,6 +544,31 @@ public class AlertController {
             log.error("Error fetching similar alerts for alert {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(createErrorResponse("Erreur lors de la récupération des alertes similaires", e.getMessage()));
+        }
+    }
+
+    // ========== AI Similarity ==========
+
+    @Operation(summary = "Get similar alerts using AI visual similarity (CLIP)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Liste des signalements similaires avec scores"),
+            @ApiResponse(responseCode = "404", description = "Signalement source introuvable"),
+            @ApiResponse(responseCode = "503", description = "Microservice de similarité IA indisponible")
+    })
+    @PreAuthorize("hasRole('SUPER_AGENT')")
+    @GetMapping(value = "/{id}/similaires", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getSimilairesIA(@PathVariable Long id) {
+        try {
+            log.info("GET /v1/alerts/{}/similaires - analyse IA similarité", id);
+            List<AlertSimilarityResponseDTO> results = alertSimilarityService.findSimilarAlerts(id);
+            return ResponseEntity.ok(results);
+        } catch (AlertNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(createErrorResponse("Signalement introuvable", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Erreur similarité IA pour alerte {}", id, e);
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body(createErrorResponse("Service de similarité IA indisponible", e.getMessage()));
         }
     }
 
