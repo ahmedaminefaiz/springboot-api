@@ -84,7 +84,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // Use your Angular port here
-        configuration.setAllowedOrigins(List.of("http://localhost:4200","http://ebd2-frontendapp-daf17h-3adb20-192-166-204-204.traefik.me/"));
+        configuration.setAllowedOrigins(List.of("http://localhost:4200","http://ebd2-frontendapp-daf17h-3adb20-192-166-204-204.traefik.me/",https://urbain-alerts.crafters.dev/));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
         configuration.setAllowCredentials(true);
