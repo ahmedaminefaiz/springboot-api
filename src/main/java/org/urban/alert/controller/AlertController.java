@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -38,6 +39,12 @@ public class AlertController {
 
     private final AlertService alertService;
     private final AlertSimilarityService alertSimilarityService;
+
+    /**
+     * Tri par défaut : les signalements les plus récents en premier.
+     * Appliqué à toutes les listes paginées d'alertes.
+     */
+    private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "createdAt");
 
     // ========== CRUD Endpoints ==========
 
@@ -103,7 +110,7 @@ public class AlertController {
             @RequestParam(defaultValue = "10") int size) {
         try {
             log.info("GET /api/alerts - Fetching all alerts");
-            Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable = PageRequest.of(page, size, DEFAULT_SORT);
             Page<AlertResponseDTO> response = alertService.getAllAlerts(pageable);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -129,7 +136,7 @@ public class AlertController {
         try {
             log.info("GET /api/alerts/user/my-alerts - Fetching user alerts");
             Long userId = getCurrentUserId();
-            Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable = PageRequest.of(page, size, DEFAULT_SORT);
             Page<AlertResponseDTO> response = alertService.getUserAlerts(userId, pageable);
             return ResponseEntity.ok(response);
         } catch (UserNotFoundException e) {
@@ -326,7 +333,7 @@ public class AlertController {
             @RequestParam(defaultValue = "10") int size) {
         try {
             log.info("GET /api/alerts/category/{} - Fetching by category", categoryId);
-            Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable = PageRequest.of(page, size, DEFAULT_SORT);
             Page<AlertResponseDTO> response = alertService.getAlertsByCategory(categoryId, pageable);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -352,7 +359,7 @@ public class AlertController {
             @RequestParam(defaultValue = "10") int size) {
         try {
             log.info("GET /api/alerts/status/{} - Fetching by status", status);
-            Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable = PageRequest.of(page, size, DEFAULT_SORT);
             Page<AlertResponseDTO> response = alertService.getAlertsByStatus(status, pageable);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -377,7 +384,7 @@ public class AlertController {
             @RequestParam(defaultValue = "10") int size) {
         try {
             log.info("GET /api/alerts/search - Searching with keyword: {}", keyword);
-            Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable = PageRequest.of(page, size, DEFAULT_SORT);
             Page<AlertResponseDTO> response = alertService.searchAlerts(keyword, pageable);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -415,6 +422,36 @@ public class AlertController {
             log.error("Error changing status", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(createErrorResponse("Erreur lors du changement de statut", e.getMessage()));
+        }
+    }
+
+    /**
+     * Requalifie la catégorie d'une alerte (SUPER_AGENT).
+     * Après visualisation des médias, l'agent peut corriger la catégorie choisie par le citoyen.
+     */
+    @Operation(summary = "Change the category of an alert (re-classification by super-agent)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Category changed successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Alert or category not found")
+    })
+    @PreAuthorize("hasRole('SUPER_AGENT')")
+    @PatchMapping(value = "/{id}/category", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> changeCategory(
+            @PathVariable Long id,
+            @RequestParam Long categoryId) {
+        try {
+            log.info("PATCH /v1/alerts/{}/category - Changing category to {}", id, categoryId);
+            AlertResponseDTO response = alertService.changeCategory(id, categoryId);
+            return ResponseEntity.ok(response);
+        } catch (AlertNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(createErrorResponse("Alerte non trouvée", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error changing category", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(createErrorResponse("Erreur lors du changement de catégorie", e.getMessage()));
         }
     }
 
@@ -509,7 +546,7 @@ public class AlertController {
             @RequestParam(defaultValue = "10") int size) {
         try {
             log.info("GET /v1/alerts/unqualified - Fetching unqualified alerts");
-            Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable = PageRequest.of(page, size, DEFAULT_SORT);
             Page<AlertResponseDTO> response = alertService.getUnqualifiedAlerts(pageable);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
