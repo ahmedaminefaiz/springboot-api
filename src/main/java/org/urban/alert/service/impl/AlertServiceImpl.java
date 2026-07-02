@@ -191,6 +191,23 @@ public class AlertServiceImpl implements AlertService {
         return alertMapper.entityToAlertResponse(updatedAlert);
     }
 
+    @Override
+    public AlertResponseDTO changeCategory(Long alertId, Long categoryId) {
+        log.info("Changing category of alert {} to category {}", alertId, categoryId);
+
+        Alert alert = alertRepository.findById(alertId)
+                .orElseThrow(() -> new AlertNotFoundException(alertId));
+
+        var category = problemTypeRepository.findById(categoryId)
+                .orElseThrow(() -> new ProblemTypeNotFoundException(categoryId));
+
+        alert.setCategory(category);
+        Alert updatedAlert = alertRepository.save(alert);
+
+        log.info("Category changed for alert {}", alertId);
+        return alertMapper.entityToAlertResponse(updatedAlert);
+    }
+
     // ========== Media Operations ==========
 
     @Override
