@@ -66,6 +66,13 @@ public interface AlertService {
      */
     AlertResponseDTO changeStatus(Long alertId, AlertStatusEnum newStatus);
 
+    /**
+     * Change la catégorie (type de problème) d'une alerte.
+     * Utilisé par le SUPER_AGENT lors du triage : le citoyen peut s'être trompé
+     * de catégorie, l'agent la requalifie après visualisation des médias.
+     */
+    AlertResponseDTO changeCategory(Long alertId, Long categoryId);
+
     // ========== Media Operations ==========
 
     /**
